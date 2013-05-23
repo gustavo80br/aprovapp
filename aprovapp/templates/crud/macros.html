@@ -1,0 +1,157 @@
+
+<!-- 
+Macro: render_field
+Description: Macro for rendering a Form Field
+Author: Gustavo Gonçalves
+-->
+
+{% macro render_field(field) %}
+  {% if field.errors %}  
+    {% set error_class = ' error' %}
+  {% endif %}
+  <div class="control-group{{ error_class }}">
+    {{ field.label(class="control-label") }}
+    <div class="controls">
+    {% if field.errors %}
+        {% set css_class = 'has_error ' + kwargs.pop('class', '') %}
+          {{ field(class=css_class, **kwargs) }}
+          {% for error in field.errors %}
+          <span class="help-inline error"><small>{{ error|e }}</small></li>
+          {% endfor %}    
+    {% else %}
+        {{ field(**kwargs) }}
+    {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+
+<!-- 
+Macro: render_flash_messages
+Description: Macro for rendering Growl/Flash messages
+Author: Gustavo Gonçalves
+-->
+
+{% macro render_flash_messages() %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          <a href="#" class="close" data-dismiss="alert">&times;</a>
+          <p>{{ message }}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+{% endmacro %}
+
+
+
+{% macro url_for_refresh(url) %}
+  <span id="aprovapp-refresh" data-refresh="{{ url }}"/>
+{% endmacro %}
+
+
+
+
+
+<!-- 
+Macro: render_page_link & render_pagination
+Description: Macros used to build table pagination of CRUD lists
+Author: Gustavo Gonçalves
+-->
+
+{% macro render_page_link(i, model_id, page_size, page=None) %}
+  {% if i == page %}
+    <li class="active"><span>{{ i }}</span></li>
+  {% else %}
+    <li><a href="{{ url_for('crud_list', model_id=model_id, page_size=page_size, page=i) }}" class="ajax_call">{{ i }}</a></li>
+  {% endif %}
+  {{ caller() }}
+{% endmacro %}
+
+
+{% macro render_pagination(page,pages,model_id,page_size, total) %}
+
+<span class="pagination_summary">
+  Total {{ total }}
+</span>
+
+<div class="pagination">
+<ul>
+    {% if page > 1 %}
+      <li><a href="{{ url_for('crud_list', model_id=model_id, page_size=page_size, page=page - 1) }}" class="page previous ajax_call">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% if pages > 10 %}
+      {% if page < 8 %}
+        {% set rng = range(1,9) %}
+        {% for i in rng %}
+          {% call render_page_link(i, model_id, page_size, page) %}{% endcall %}
+        {% endfor %}
+        <li class="disabled"><span>..</span></li>
+        {% call render_page_link(pages, model_id, page_size) %}{% endcall %}
+      {% elif page >= pages - 5 %}
+        {% set rng = range(pages - 7, pages + 1) %}
+        {% call render_page_link(1, model_id, page_size) %}{% endcall %}
+        <li class="disabled"><span>..</span></li>
+        {% for i in rng %}
+          {% call render_page_link(i, model_id, page_size, page) %}{% endcall %}
+        {% endfor %}
+      {% else %}
+        {% set rng = range(page - 2, page + 4) %}
+        {% call render_page_link(1) %}{% endcall %}
+        <li class="disabled"><span>..</span></li>
+        {% for i in rng %}
+          {% call render_page_link(i, model_id, page_size, page) %}{% endcall %}
+        {% endfor %}
+        <li class="disabled"><span>..</span></li>
+        {% call render_page_link(pages, model_id, page_size) %}{% endcall %}
+      {% endif %}
+    {% else %}
+      {% set rng = range(1, pages + 1) %}
+      {% for i in rng %}
+        {% call render_page_link(i, model_id, page_size, page) %}{% endcall %}
+      {% endfor %}
+    {% endif %}
+    {% if page < pages %} 
+      <li><a href="{{ url_for('crud_list', model_id=model_id, page_size=page_size, page=page + 1) }}" class="page next ajax_call">&raquo</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endmacro %}
+
+
+
+<!-- 
+Macro: render_table_headers
+Description: Macro used to render table headers of CRUD lists
+Author: Gustavo Gonçalves
+-->
+
+{% macro render_table_headers(headers,page_size,page,order_by,order_direction, model_id, order_template) %}
+  <th class="aprovapp-checkbox-column"><input type="checkbox" value="all" class="aprovapp-select-all"></th>
+  {% for th in headers %}
+    <th><a class="ajax_call" href="{{ url_for('crud_list', model_id=model_id, page_size=page_size, page=page, order=th.field, order_direction='asc') }}">{{ th.label }}</a></th>
+  {% endfor %}
+  <th class="aprovapp-edit-column">Edit</th>
+{% endmacro %}
+
+<!-- 
+Macro: render_table_row
+Description: Macro used for rendering table rows of CRUD lists
+Author: Gustavo Gonçalves
+-->
+
+{% macro render_table_row(row, model_id) %}
+<tr>
+  <td class="aprovapp-checkbox-column"><input type="checkbox" value="{{ row[0] }}"/></td>
+  {% for column in row[1:] %}
+    <td>{{ column }}</td>
+  {% endfor %}
+  <td class="aprovapp-edit-column"><a class="btn btn-mini aprovapp-edit-button ajax_call" href="{{ url_for('crud_include', model_id=model_id, id=row[0]) }}"><i class="icon-pencil"></i> Edit</a></td>
+<tr>
+{% endmacro %}

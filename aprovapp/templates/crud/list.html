@@ -1,0 +1,61 @@
+{% from "crud/macros.html" import render_table_row %}
+{% from "crud/macros.html" import render_pagination %}
+{% from "crud/macros.html" import render_table_headers %}
+{% from "crud/macros.html" import render_flash_messages %}
+{% from "crud/macros.html" import url_for_refresh %}
+
+{{ url_for_refresh(url) }}
+
+
+{{ render_flash_messages() }}
+
+<div class="row-fluid">
+	<div class="span6">
+		<h3>{{ title }}</h3>
+	</div>
+	<div class="span6">
+		<ul class="pager">
+			{% if include_by_type %}
+				{% for row in include_by_type %}
+					<li>
+						<a id="add" class="ajax_call" href="{{ row[0] }}">
+						<i class="icon-plus-sign"></i> {{ row[1] }}</a>
+					</li>
+				{% endfor %}
+			{% else %}
+				<li>
+					<a id="add" class="ajax_call" href="{{ url_for('crud_include', model_id=model_id) }}">
+					<i class="icon-plus-sign"></i> Incluir</a>
+				</li>
+			{% endif %}
+			<li>
+				<a id="remove" class="" href="{{ url_for('crud_delete', model_id=model_id) }}">
+				<i class="icon-minus-sign"></i> Remover</a>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div class="row-fluid">
+	<div class="span12">
+		<table id="aprovapp-list-table" class="table table-hover table-bordered">
+		<thead>
+			<tr>
+				{{ render_table_headers(headers,page_size,page,order_by,order_direction, model_id, order_template) }}
+			</tr>
+		</thead>
+			<tbody>
+
+				{% for row in data %}
+					{{ render_table_row(row, model_id) }}
+				{% endfor %}
+
+			</tbody>
+		</table>
+
+		{% if pagination_enabled %}
+			{{ render_pagination(page,pages,model_id,page_size, total) }}
+		{% endif %}
+
+	</div>
+</div>

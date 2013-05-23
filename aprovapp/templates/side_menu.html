@@ -1,0 +1,49 @@
+<ul id="aprovapp-left-menu" class="nav nav-tabs nav-stacked">
+<li class="accordion-group">
+  <a data-toggle="collapse" data-target="#menu1" data-parent="#aprovapp-left-menu">Entidades e Bancas</a>
+    <ul id="menu-1" class="collapse">
+      <li class="aprovapp-nav">
+        <a class="ajax_menu" href="{{ url_for('exams.lst', model_id='examining-boards', page_size=10, page=1) }}">
+        Bancas
+        </a>
+      </li>
+      <li class="aprovapp-nav">
+        <a class="ajax_menu" href="{{ url_for('exams.lst', model_id='promoters', page_size=10, page=1) }}">
+          Entidades
+        </a>
+      </li>
+      <li class="aprovapp-nav">
+        <a class="ajax_menu" href="{{ url_for('exams.lst', model_id='job-roles', page_size=10, page=1) }}">
+          Cargos
+        </a>
+      </li>
+    </ul>
+</li>
+<li class="accordion-group">
+  <a data-toggle="collapse" data-target="#menu2" data-parent="#aprovapp-left-menu">Áreas de Conhecimento</a>
+  <ul id="menu1" class="collapse">
+    <li class="aprovapp-nav">
+      <a class="ajax_menu" href="{{ url_for('exams.lst', model_id='knowledge-areas', page_size=10, page=1) }}">
+        Áreas
+      </a>
+    </li>
+    <li class="aprovapp-nav">
+      <a class="ajax_menu" href="{{ url_for('exams.lst', model_id='disciplines', page_size=10, page=1) }}">
+        Disciplinas
+      </a>
+    </li>
+    <li class="aprovapp-nav">
+      <a class="ajax_menu" href="{{ url_for('exams.lst', model_id='subjects', page_size=10, page=1) }}">
+        Assuntos
+      </a>
+    </li>
+  </ul>
+</li>
+
+<li class="aprovapp-nav">
+  <a class="ajax_menu" href="http://docs.jquery.com/">
+    Questões
+  </a>
+</li>
+<li class="aprovapp-nav-header"><a>  </a></li>
+</ul>

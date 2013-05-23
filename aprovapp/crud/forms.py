@@ -6,9 +6,20 @@ from aprovapp.crud.models import UploadedFile, UploadedImageFile
 
 from wtforms.widgets.core import HTMLString, html_params
 from wtforms.widgets import TextInput
-from wtforms.fields import TextField, DateTimeField
+from wtforms.fields import TextField, DateTimeField, FieldList, FormField
 
 from wtforms.ext.sqlalchemy.orm import model_form, ModelConverter, converts
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+
+
+def field_list(f, min=None, max=None):
+    return FieldList(FormField(f), min_entries=min, max_entries=max, widget=CrudListWidget(css_class='field_list_widget'))
+
+def factory_for(m):
+    return lambda: m.query
+
+def select_for(m):
+    return QuerySelectField(query_factory=factory_for(m))
 
 
 class CrudModelConverter(ModelConverter):
@@ -43,8 +54,9 @@ def form_for(model_class, timestamp_mixin=True, exclude=None, skip=[]):
     form_model_base = model_form(model_class, Form, exclude=exclude, converter=CrudModelConverter())
 
     def _populate_obj(self, obj):
+        skip_fields = ['UploadImageField','UploadField']
         for name, field in self._fields.iteritems():
-            if not name in self.skip:
+            if not name in self.skip and not type(field).__name__ in skip_fields:
                 field.populate_obj(obj, name)
 
     def _pre_process_content(self):

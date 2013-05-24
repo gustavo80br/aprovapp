@@ -94,11 +94,12 @@ def crud_include(model_id, id=None, polymorphic=None):
 					if u_field_type == 'FormField':
 
 						for e in field.entries:
+							
 							if e.object_data:
 								e.form.populate_obj(e.object_data)
 								sub_elements.append(e.object_data)
 							else:
-								source_class = e.form.source_class
+								source_class = e.form.__source_class__
 								sub_element = source_class()
 								e.form.populate_obj(sub_element)
 								sub_elements.append(sub_element)

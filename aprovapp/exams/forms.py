@@ -2,8 +2,10 @@
 from flask.ext.wtf import Form
 
 from wtforms import Form as WTForm
+from wtforms import validators
 
-from wtforms.fields import FormField, FieldList, TextField, BooleanField
+from wtforms.fields import FormField, FieldList, TextField, BooleanField, \
+    DecimalField, IntegerField, TextAreaField
 
 from aprovapp.crud.forms import form_for, select_for, field_list
 from aprovapp.crud.forms import UploadField, UploadImageField, \
@@ -37,17 +39,17 @@ class SubjectForm(form_for(Subject)):
 
 
 class CalendarEventInlineForm(WTForm):
-    source_model = CalendarEvent
+    __source_class__ = CalendarEvent
     trigger = select_for(CalendarEventTrigger)
-    date = DateTimePickerField()
+    date = DateTimePickerField(format='%d/%m/%Y %H:%M')
 
 class ExamPositionInlineForm(WTForm):
-    source_model = ExamPosition
+    __source_class__ = ExamPosition
     name = TextField()
     job_role = select_for(ExamJobRole)
-    inscription_price = TextField()
-    salary = TextField()
-    places = TextField()
+    inscription_price = DecimalField()
+    salary = DecimalField()
+    places = IntegerField()
 
 class ExamPositionForm(form_for(ExamPosition)):
     job_role = select_for(ExamJobRole)
@@ -77,13 +79,12 @@ class QuestionForm(form_for(Question, exclude=['type'])):
     subject = select_for(Subject)
 
 class ChoiceForm(form_for(Choice)):
-    source_model = Choice
     text = TextField()
     is_answer = BooleanField()
 
 class ChoiceInlineForm(WTForm):
-    source_model = Choice
-    text = TextField()
+    __source_class__ = Choice
+    text = TextAreaField(validators=[validators.required()])
     is_answer = BooleanField()
 
 class SingleChoiceQuestionForm(QuestionForm, form_for(SingleChoiceQuestion, exclude=['type','right_choice'])):
@@ -94,5 +95,3 @@ class MultipleChoiceQuestionForm(QuestionForm, form_for(MultipleChoiceQuestion, 
 
 class BooleanQuestionForm(QuestionForm, form_for(BooleanQuestion, exclude=['type'])):
     pass
-
-

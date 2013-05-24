@@ -572,7 +572,7 @@ $(document).ready(function() {
 
 
 function getEntriesLen(widget) {
-	entries = widget.find('li');
+	entries = widget.find('li:visible');
 	return entries_len = entries.length;
 }
 
@@ -583,10 +583,9 @@ function getLast(widget) {
 
 function setFiledListEnvironment(widget) {
 
-	last = widget.find('li:last');
-	template = widget.find('li:first').clone(false);
-	entries = widget.find('li');
-	entries_len = entries.length;
+	last = getLast(widget);
+	template = widget.find('li:hidden').clone(false);
+	entries_len = getEntriesLen(widget);
 
 	add_btn = $(document.createElement('button'));
 	//add_btn.prop('id', 'field_list_add');
@@ -597,6 +596,7 @@ function setFiledListEnvironment(widget) {
 		entries_len = getEntriesLen(e.data.widget)
 		new_last = setTemplate(e.data.template, entries_len)
 		last.after(new_last);
+		new_last.show();
 		return false;
 	});
 	widget.before(add_btn);
@@ -647,35 +647,39 @@ function setTemplate(template, number) {
 
 	main_label = tmpl.find('label:first');
 	main_label_for = main_label.prop('for');
-	main_label_for = main_label_for.replace('-0','-' + number);
+	main_label_for = main_label_for.replace('-X','-' + number);
 	main_label.prop('for', main_label_for);
 
 	main_label_text = main_label.text();
-	main_label_text = main_label_text.replace('-0','-' + number);
+	main_label_text = main_label_text.replace('-X','-' + number);
 	main_label.text(main_label_text);
 
 	main_table = tmpl.find('table:first');
 	main_table_id = main_table.prop('id');
-	main_table_id = main_table_id.replace('-0','-' + number);
+	main_table_id = main_table_id.replace('-X','-' + number);
 	main_table.prop('id', main_table_id);
 
 	main_table.find('label').each(function(){
 		l = $(this);
 		l_for = l.prop('for');
-		l_for = l_for.replace('-0','-' + number);
+		l_for = l_for.replace('-X','-' + number);
 		l.prop('for',l_for);
 	});
 
-	main_table.find('input').each(function(){
+	change_id_and_name = function() {
 		i = $(this);
 		i_id = i.prop('id');
-		i_id = i_id.replace('-0','-' + number);
+		i_id = i_id.replace('-X','-' + number);
 		i.prop('id', i_id);
 		i_name = i.prop('name');
-		i_name = i_name.replace('-0','-' + number);
+		i_name = i_name.replace('-X','-' + number);
 		i.prop('name', i_name);
 		i.val('');
-	});
+	}
+
+	main_table.find('input').each(change_id_and_name);
+	main_table.find('select').each(change_id_and_name);
+	main_table.find('textarea').each(change_id_and_name);
 
 	return tmpl
 }

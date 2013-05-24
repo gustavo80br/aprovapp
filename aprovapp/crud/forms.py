@@ -54,7 +54,7 @@ def form_for(model_class, timestamp_mixin=True, exclude=None, skip=[]):
     form_model_base = model_form(model_class, Form, exclude=exclude, converter=CrudModelConverter())
 
     def _populate_obj(self, obj):
-        skip_fields = ['UploadImageField','UploadField']
+        skip_fields = ['UploadImageField','UploadField','FieldList']
         for name, field in self._fields.iteritems():
             if not name in self.skip and not type(field).__name__ in skip_fields:
                 field.populate_obj(obj, name)
@@ -163,14 +163,31 @@ class CrudListWidget(object):
             c = kwargs.pop('class', '') or kwargs.pop('class_', '')
             kwargs['class'] = u'%s %s' % (self.css_class, c)
 
-        html = ['<%s %s>' % (self.html_tag, html_params(**kwargs))]
-        
+        html = []
+        html_main = ['<%s %s>' % (self.html_tag, html_params(**kwargs))]
+        html_template = ''
+
         for subfield in field:
             if self.prefix_label:
                 html.append('<li>%s: %s</li>' % (subfield.label, subfield()))
             else:
                 html.append('<li>%s %s</li>' % (subfield(), subfield.label))
         
-        html.append('</%s>' % self.html_tag)
+        subfield_name = '%s-X' % field.short_name
+        subfield_id   = '%s-X' % field.id
+        subfield = field.unbound_field.bind(form=None, name=subfield_name, id=subfield_id)
+        subfield.process(None)
+        if self.prefix_label:
+            html_template = '<li style="display: none">%s: %s</li>' % (subfield.label, subfield())
+        else:
+            html_template = '<li style="display: none">%s %s</li>' % (subfield(), subfield.label)
+
+        #html_template = html_template.replace('-0-','-X-')
+        #html_template = html_template.replace('-0','-X')
+
+        html_main.append(html_template)
+        html_main.append(''.join(html))
+
+        html_main.append('</%s>' % self.html_tag)
         
-        return HTMLString(''.join(html))
+        return HTMLString(''.join(html_main))

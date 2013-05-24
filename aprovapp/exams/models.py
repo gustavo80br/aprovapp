@@ -345,7 +345,7 @@ class Choice(d.Model, TimestampMixin):
 
     id = d.Column(d.Integer, primary_key=True)
 
-    text = d.Column(d.Text)
+    text = d.Column(d.Text, nullable=False)
     is_answer = d.Column(d.Boolean) # if True this choice should be checked
 
     question_id = d.Column(d.Integer, d.ForeignKey('question.id'))

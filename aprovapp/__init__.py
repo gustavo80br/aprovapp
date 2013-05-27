@@ -15,6 +15,17 @@ db = SQLAlchemy(app)
 #    return render_template('404.html'), 404
 
 """
+JINJA WITH ANGULAR
+"""
+app.jinja_env.block_start_string = '[%'
+app.jinja_env.block_end_string = '%]'
+app.jinja_env.variable_start_string = '[['
+app.jinja_env.variable_end_string = ']]'
+app.jinja_env.comment_start_string = '[#'
+app.jinja_env.comment_end_string = '#]'
+
+
+"""
 FLASK SECURITY
 """
 from aprovapp.users.models import User, Role

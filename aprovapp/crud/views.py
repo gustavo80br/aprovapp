@@ -106,8 +106,6 @@ def crud_include(model_id, id=None, polymorphic=None):
 								db.session.add(sub_element)
 								
 					setattr(model_instance, field.name, sub_elements)
-
-
 			
 			# CHECK PLUPLOAD
 			for key in request.form:
@@ -126,10 +124,12 @@ def crud_include(model_id, id=None, polymorphic=None):
 			db.session.commit()
 
 			if not flag_edit:
-				flash('Successfully added new Examining Board','success')
+				flash('Successfully added','success')
 				form_instance = form()
 			else:
-				flash('Successfully edited Examining Board','success')
+				flash('Successfully edited','success')
+			
+			status_code = 200
 			
 		else:
 
@@ -152,18 +152,21 @@ def crud_include(model_id, id=None, polymorphic=None):
 						field.data = getattr(model_instance, field.id)
 
 			flash("Form fillment errors, please check", 'error')
+			status_code = 400
 			error_flag = True
 
-	if 'submit-and-redirect' in request.form and not error_flag:
-		return redirect(url_for('crud_list',model_id=model_id))	
-	else:
-		return render_template("crud/include.html", 
-			title = cfg['title'],
-			model_id = model_id,
-			instance_id = id,
-			polymorphic = polymorphic,
-			form = form_instance,
-		)
+	else: 
+
+		status_code = 200
+
+
+	return render_template("crud/include.html", 
+		title = cfg['title'],
+		model_id = model_id,
+		instance_id = id,
+		polymorphic = polymorphic,
+		form = form_instance,
+	), status_code
 
 
 @app.route("/<model_id>/list/", methods=['GET'])
@@ -274,16 +277,19 @@ def crud_delete(model_id, id=None):
 				if dependents > 0:
 					flash('%s cannot delete, %s dependencies, remove dependencies first' % (model_instance,dependents), 'error')
 					dependents_flag = True
+					status_code = 412
 
 		if not dependents_flag:
 			db.session.delete(model_instance)
 			db.session.commit()
 			flash('%s successfully deleted' % model_instance, 'success')
+			status_code = 200
 
-	else: 
+	else:
+
 		return abort(404)
 
-	return render_template('crud/flash_messages.html')
+	return render_template('crud/flash_messages.html'), status_code
 
 
 

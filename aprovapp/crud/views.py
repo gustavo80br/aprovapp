@@ -159,6 +159,9 @@ def crud_include(model_id, id=None, polymorphic=None):
 
 		status_code = 200
 
+	frm_tpl = None
+	if 'form_template' in cfg:
+		frm_tpl = cfg['form_template']
 
 	return render_template("crud/include.html", 
 		title = cfg['title'],
@@ -166,6 +169,7 @@ def crud_include(model_id, id=None, polymorphic=None):
 		instance_id = id,
 		polymorphic = polymorphic,
 		form = form_instance,
+		form_template = frm_tpl
 	), status_code
 
 

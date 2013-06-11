@@ -21,9 +21,17 @@
 
     [[ form.csrf_token ]]
 
-    [% for field in form %]
-	    [[ render_field(field) ]]
-    [% endfor %]
+    [% if form_template %]
+
+    	[% include form_template %]
+
+    [% else %]
+
+	    [% for field in form %]
+		    [[ render_field(field) ]]
+	    [% endfor %]
+
+	[% endif %]
 
 	<div class="control-group">
 		<div class="controls">

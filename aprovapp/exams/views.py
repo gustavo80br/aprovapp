@@ -32,6 +32,7 @@ crud_config = {
 			{'field':'short_name','label':'Abreviacao'},
 			{'field':'description','label':'Descritivo'},
 		),
+		'form_template': 'exams/examining_board_form.html',
 	},
 	'promoters': {
 		'model': Promoter,
@@ -73,6 +74,8 @@ crud_config = {
 @mod.route("/<model_id>/edit/<id>/", methods=['GET', 'POST'])
 @login_required
 def include(model_id, id=None):
+
+	print 'CARAHO'
 
 	cfg = crud_config[model_id]
 	model = cfg['model']
@@ -146,15 +149,21 @@ def include(model_id, id=None):
 			flash("Form fillment errors, please check", 'error')
 			error_flag = True
 
-	if 'submit-and-redirect' in request.form and not error_flag:
-		return redirect(url_for('exams.lst',model_id=model_id))	
+	print cfg
+	if 'form_template' in cfg:
+		print 'CHUTE'
+		frm_tpl = cfg['form_template']
 	else:
-		return render_template("exams/include.html", 
-			title = cfg['title'],
-			model_id = model_id,
-			instance_id = id,
-			form = form_instance,
-		)
+		print 'LALALA'
+		frm_tpl = None
+
+	return render_template("exams/include.html", 
+		title = cfg['title'],
+		model_id = model_id,
+		instance_id = id,
+		form = form_instance,
+		form_template = frm_tpl
+	)
 
 
 @mod.route("/<model_id>/list/", methods=['GET'])

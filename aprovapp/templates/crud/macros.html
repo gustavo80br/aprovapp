@@ -28,7 +28,7 @@ Author: Gustavo Gonçalves
 
   [% else %]
 
-    [% set angularjs = kwargs %]
+    [% set angularjs = {'ng-model': 'data.' + field.name, 'ng-init': "data.%s='%s'" % (field.name, data)} %]
   
   [% endif %]
   

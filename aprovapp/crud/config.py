@@ -19,6 +19,7 @@ crud_config = {
 		#	{'field':'short_name','label':'Abreviacao'},
 		#	{'field':'description','label':'Descritivo'},
 		#),
+		'form_template': 'exams/examining_board_form.html'
 	},
 	'promoters': {
 		'model': Promoter,

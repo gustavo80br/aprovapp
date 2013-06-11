@@ -101,18 +101,16 @@ class UploadWidget(object):
             if upload.temp:
                 hidden_field = '<input id="%s-plupload-aux" type="text" style="display: none;" name="%s-plupload-aux" value="%s">' % (field.name, field.name, upload.uuid)
 
-            html = """
-            <ul class="thumbnails aprovapp-form-thumb">
-                <li id="gallery" data-toggle="modal-gallery" data-target="#modal-gallery">
-                    <a href="%s" class="thumbnail" data-gallery="gallery"><img src="%s" alt="%s"/></a>
-                </li>
-            </ul>""" % (file_url, thumb_url, upload.original_filename)
+            html = '<a href="%s" class="th radius"><img src="%s" alt="%s"/></a>'\
+                     % (file_url, thumb_url, upload.original_filename)
 
-        return HTMLString('<input %s>' % html_params(name=field.name, type='file', **kwargs) + hidden_field + html)
+        return HTMLString('<div plupload><input %s>%s %s</div>' % (html_params(name=field.name, type='file', **kwargs), hidden_field, html))
+
 
 class UploadField(TextField):
     handle_class = UploadedFile
     widget = UploadWidget()
+
 
 class UploadImageField(TextField):
     handle_class = UploadedImageFile

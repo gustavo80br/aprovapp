@@ -4,7 +4,7 @@ var dontTouchDirective = function() {
         
         replace: true,
         
-        template: '<div dont-touch-toggler="toggler" ng-click="onClick()" ng-controller="dontTouchCtrl">',
+        template: '<div ng-click="onClick()" ng-controller="dontTouchCtrl">',
         
         link: function(scope, element, attributes) {
             
@@ -140,10 +140,10 @@ function registerDontTouch(module) {
 
 
 
-var modalDirective = function() {
+var modalDirective = function(dontTouchService) {
     return {
         replace: true,
-        template:   '<div id="modal-box" class="reveal-modal" modal-toggler="visible" ng-controller="ModalCtrl">'
+        template:   '<div id="modal-box" class="reveal-modal" ng-controller="ModalCtrl">'
                   + '<h2 ng-show="title.length">{{ title }}</h2>'
                   + '<p class="lead" ng-show="lead.length">{{ lead }}</p>'
                   + '<p ng-show="txt.length">{{ txt }}</p>'
@@ -153,27 +153,18 @@ var modalDirective = function() {
                   + '<a href="#" class="button small" ng-click="customAction()" ng-show="action_btn">{{ action_caption }}</a>'
                   + '<a href="#" class="button small" ng-click="cancelAction()" ng-show="cancel_btn">{{ cancel_caption }}</a>'
                   + '</div></div>',
-        link: function(scope, element, attributes) {
+        link: function($scope, element, attributes) {
+            
             element = $(element[0]);
+            
             element.css({
                 'display' : 'block',
                 'visibility' : 'visible',
                 'opacity' : 0,
                 'z-index' : 1001,
             });
-            scope.default_top = parseInt(element.css('top'),10);
-        }
-    }
-}
-
-var modalTogglerDirective = function(dontTouchService) {
-    return {
-        link: function($scope, element, attributes) {
             
-            // Thanks Mr. Ben Nadel!
-            // http://www.bennadel.com/blog/2440-Creating-A-Custom-Show-Hide-Directive-In-AngularJS.htm
-            
-            element = $(element[0]);
+            $scope.default_top = parseInt(element.css('top'),10);
 
             $scope.$watch(
                 'visible',
@@ -218,7 +209,6 @@ var modalTogglerDirective = function(dontTouchService) {
         }
     }
 }
-
 
 
 var ModalCtrl = function($scope, modalService) {
@@ -289,6 +279,5 @@ var modalService = function() {
 function registerModal(module) {
     module.factory('modalService', modalService);
     module.controller('ModalCtrl', ['$scope', 'modalService', ModalCtrl]);
-    module.directive('modal', modalDirective);
-    module.directive('modalToggler', ['dontTouchService', modalTogglerDirective]);
+    module.directive('modal', ['dontTouchService', modalDirective]);    
 }

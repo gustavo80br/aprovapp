@@ -28,7 +28,7 @@ var dontTouchDirective = function() {
             element.css(css);
 
             scope.$watch(
-                'toggler',
+                'toggle',
                 function(value) {
 
                     var prop = {}
@@ -70,22 +70,25 @@ var dontTouchDirective = function() {
     }
 }
 
-var DontTouchCtrl = function($scope, dontTouchService) {
+var DontTouchCtrl = function($scope, dontTouchService, modalService) {
     
-    $scope.toggler = false;
-    $scope.click_turn_off = true;
+    $scope.toggle = false;
+    $scope.block = false;
 
-    $scope.on = function() {
-        $scope.toggler = true;
+    $scope.on = function(block) {
+        $scope.toggle = true;
+        if(block) $scope.block = true;
     }
 
     $scope.off = function() {
-        $scope.toggler = false;
+        $scope.toggle = false;
+        $scope.block = false;
     }
 
     $scope.onClick = function() {
-        if($scope.click_turn_off) {
+        if(!$scope.block) {
             $scope.off();
+            modalService.dismiss();
         }
     }
 
@@ -97,16 +100,24 @@ var dontTouchService = function() {
 
     var dt = {}
 
-    dt.init = function(scpe) {
-        this.scope = scpe;
+    dt.off_callback = function() {};
+
+    dt.init = function(scope) {
+        this.scope = scope;
     }
 
-    dt.on = function() {
-        this.scope.on();
+    dt.on = function(block, off_callback) {
+        this.scope.on(block);
+        if(typeof(off_callback) === 'function') {
+            this.off_calback = off_callback;
+        }
     }
 
     dt.off = function() {
         this.scope.off();
+        if(typeof(this.off_calback) === 'function') {
+            this.off_callback(this);
+        }
     }
 
     return dt;
@@ -116,7 +127,7 @@ var dontTouchService = function() {
 
 function registerDontTouch(module) {
     module.factory('dontTouchService', dontTouchService);
-    module.controller('dontTouchCtrl', ['$scope', 'dontTouchService', DontTouchCtrl]);
+    module.controller('dontTouchCtrl', ['$scope', 'dontTouchService', 'modalService', DontTouchCtrl]);
     module.directive('dontTouch', dontTouchDirective);
 }
 
@@ -147,7 +158,7 @@ var modalDirective = function(dontTouchService) {
                   + '<h2 ng-show="title.length">{{ title }}</h2>'
                   + '<p class="lead" ng-show="lead.length">{{ lead }}</p>'
                   + '<p ng-show="txt.length">{{ txt }}</p>'
-                  + '<a class="close-reveal-modal" ng-click="close()">x</a>'
+                  + '<a class="close-reveal-modal" ng-click="hide()">x</a>'
                   + '<div ng-show="showButtons()">'
                   + '<a href="#" class="button small" ng-click="okAction()" ng-show="ok_btn">{{ ok_caption }}</a>'
                   + '<a href="#" class="button small" ng-click="customAction()" ng-show="action_btn">{{ action_caption }}</a>'
@@ -176,16 +187,12 @@ var modalDirective = function(dontTouchService) {
                     if (value) {
                         //show
 
-                        dontTouchService.on();
-
                         top = ($scope.default_top + $(window).scrollTop());
                         opacity = 1;
 
                     } else {
                         //hide 
 
-                        dontTouchService.off();
-                        
                         top = -(element.height() + $scope.default_top + 10);
                         opacity = 0;
 
@@ -211,7 +218,7 @@ var modalDirective = function(dontTouchService) {
 }
 
 
-var ModalCtrl = function($scope, modalService) {
+var ModalCtrl = function($scope, modalService, dontTouchService) {
 
     $scope.title = 'asdsadsadsa';
     $scope.lead = 'dasdasdsa';
@@ -240,9 +247,17 @@ var ModalCtrl = function($scope, modalService) {
         $scope.action_btn = false;
     }
 
-    $scope.close = function() {
+    $scope.show = function(block) {
+        $scope.visible = true;
+        dontTouchService.on(block, function() {
+            $scope.hide();
+        });
+    }
+
+    $scope.hide = function() {
         $scope.visible = false;
-    };
+        dontTouchService.off();
+    }
 
     modalService.init($scope);
 }
@@ -258,13 +273,17 @@ var modalService = function() {
         this.scope = scope;
     }
 
-    m.alert = function(title, lead, content) {
+    m.alert = function(block, title, lead, content) {
         // For alert, no need buttons
         this.scope.hideButtons();
 
         // Show the box
         //this._open();
-        this.scope.visible = ! this.scope.visible;
+        if(this.scope.visible) {
+            this.scope.hide();
+        } else {
+            this.scope.show(block);
+        }
 
     }
 
@@ -278,6 +297,6 @@ var modalService = function() {
 
 function registerModal(module) {
     module.factory('modalService', modalService);
-    module.controller('ModalCtrl', ['$scope', 'modalService', ModalCtrl]);
-    module.directive('modal', ['dontTouchService', modalDirective]);    
+    module.controller('ModalCtrl', ['$scope', 'modalService', 'dontTouchService', ModalCtrl]);
+    module.directive('modal', modalDirective);    
 }

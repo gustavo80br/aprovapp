@@ -38,10 +38,16 @@
 
 <p>Modal visible: {{ visible }}</p>
 <p ng-controller="MainAreaCtrl">
-  <a ng-click="openModal()">{{ modal_test_msg }}</a>
+  <a ng-click="alert()">{{ modal_test_msg }}</a>
+</p>
+<p ng-controller="MainAreaCtrl">
+  <a ng-click="alertBlock()">{{ modal_test_msg }}</a>
 </p>
 <p ng-controller="MainAreaCtrl">
   <a ng-click="openDontTouch()">{{ dont_touch_test_msg }}</a>
+</p>
+<p ng-controller="MainAreaCtrl">
+  <a ng-click="openDontTouchBlock()">{{ dont_touch_test_msg }}</a>
 </p>
 <p>text to force scroll</p>
 <p>text to force scroll</p>
@@ -84,13 +90,22 @@ document.write('<script src=' +
     $scope.modal_test_msg = 'Click to Test MODAL';
     $scope.dont_touch_test_msg = 'Click to Test DONT TOUCH';
 
-    $scope.openModal = function() {
-        console.log('I have been clicked! help!');
-        modal.alert();
+    
+    $scope.alert = function() {
+        modal.alert(false, "Livre", "Basta clicar", "em qualquer lugar para esconder");
     };
+
+    $scope.alertBlock = function() {
+        modal.alert(true, "Bloqueado", "Já era", "F5 Recarregue");
+    };
+
 
     $scope.openDontTouch = function() {
         dontTouch.on();
+    }
+
+    $scope.openDontTouchBlock = function() {
+        dontTouch.on(true);
     }
 
   }]);

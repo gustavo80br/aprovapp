@@ -36,37 +36,28 @@
 
 <h1>Modal Test</h1>
 
-<p>Modal visible: {{ visible }}</p>
-<p ng-controller="MainAreaCtrl">
-  <a ng-click="alert()">{{ modal_test_msg }}</a>
-</p>
-<p ng-controller="MainAreaCtrl">
-  <a ng-click="alertBlock()">{{ modal_test_msg }}</a>
-</p>
-<p ng-controller="MainAreaCtrl">
-  <a ng-click="openDontTouch()">{{ dont_touch_test_msg }}</a>
-</p>
-<p ng-controller="MainAreaCtrl">
-  <a ng-click="openDontTouchBlock()">{{ dont_touch_test_msg }}</a>
-</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
-<p>text to force scroll</p>
+<p>force scroll</p><p>force scroll</p><p>force scroll</p>
+
+<div ng-controller="MainAreaCtrl">
+
+  <p>TEST: {{ test }} {{ x }}</p>
+
+  <ul class="disc"> 
+    <li><a ng-click="alert()">ALERT box</a></li>
+    <li><a ng-click="alertBlock()">ALERT box blocked</a></li>
+    <li><a ng-click="openDontTouch()">OVERLAY</a></li>
+    <li><a ng-click="openDontTouchBlock()">OVERLAY blocked</a></li>
+    <li><a ng-click="confirm()">CONFIRM BOX</a></li>
+    <li><a ng-click="confirmWithAction()">CONFIRM BOX</a></li>
+    <li><a ng-click="simple()">SIMPLE</a></li>
+  </ul>
+
+</div>
+
+
+<p>force scroll</p>
+<p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p><p>force scroll</p>
+
 
 <script>
 document.write('<script src=' +
@@ -87,16 +78,108 @@ document.write('<script src=' +
   app.controller('MainAreaCtrl',
     ['$scope', 'modalService', 'dontTouchService', function($scope, modal, dontTouch) {
     
-    $scope.modal_test_msg = 'Click to Test MODAL';
+    $scope.modal_test_msg = 'Alert box';
     $scope.dont_touch_test_msg = 'Click to Test DONT TOUCH';
+
+    $scope.test = "TESTING";
+    $scope.x = 0;
 
     
     $scope.alert = function() {
-        modal.alert(false, "Livre", "Basta clicar", "em qualquer lugar para esconder");
+        modal.alert({
+          block: false,
+          title: "Livre",
+          lead: "Basta clicar ou apertar ESC",
+          txt: "em qualquer lugar para esconder",
+          onConfirm: function(scope) {
+            $scope.x += 1;
+            $scope.test = "OK";
+            return true;
+          },
+          onDismiss: function(scope) {
+            $scope.x += 1;
+            $scope.test = "DISMISS";
+            return true;
+          }
+        });
     };
 
     $scope.alertBlock = function() {
-        modal.alert(true, "Bloqueado", "Já era", "F5 Recarregue");
+         modal.alert({
+          block: true,
+          title: "Livre",
+          lead: "Somente o ESC ou o clique em algum botão",
+          txt: "Só assim para fechar esta janela",
+          confirm_caption: "Sou um botão OK diferente",
+          onConfirm: function(scope) {
+            $scope.x += 1;
+            $scope.test = "OK";
+            return true;
+          },
+          onDismiss: function(scope) {
+            $scope.x += 1;
+            $scope.test = "DISMISS";
+            return true;
+          }
+        });
+    };
+
+    $scope.confirm = function() {
+        modal.confirm({
+          block: false,
+          title: "Livre",
+          lead: "Somente o ESC ou o clique em algum botão",
+          txt: "Só assim para fechar esta janela",
+          confirm_caption: "CONFIRMA",
+          onConfirm: function(scope) {
+            $scope.x += 1;
+            $scope.test = "OK";
+            return true;
+          },
+          onDismiss: function(scope) {
+            $scope.x += 1;
+            $scope.test = "DISMISS";
+            return true;
+          }
+        });
+    };
+
+    $scope.confirmWithAction = function() {
+        modal.confirm({
+          block: false,
+          title: "Livre",
+          lead: "Somente o ESC ou o clique em algum botão",
+          txt: "Só assim para fechar esta janela",
+          confirm_caption: "CONFIRMA",
+          action_btn: true,
+          action_caption: "ABRIR UM ALERTA",
+          onConfirm: function(scope) {
+            $scope.x += 1;
+            $scope.test = "OK";
+            return true;
+          },
+          onDismiss: function(scope) {
+            $scope.x += 1;
+            $scope.test = "DISMISS";
+            return true;
+          },
+          onAction: function(scope) {
+            $scope.x += 1;
+            $scope.test = "ACTION";
+            modal.alert({
+              title : 'OUTRO ALERTA!',
+              lead : 'Esse é bom!'
+            });
+            return true;
+          }
+        });
+    };
+
+    $scope.simple = function() {
+        modal.confirm({
+          title: "SIMPLES",
+          animate: false
+        });
     };
 
 

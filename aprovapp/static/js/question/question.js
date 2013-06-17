@@ -1,64 +1,114 @@
 
-function fisherYates ( myArray ) {
-  var i = myArray.length, j, temp;
-  if ( i === 0 ) return false;
-  while ( --i ) {
-     j = Math.floor( Math.random() * ( i + 1 ) );
-     temp = myArray[i];
-     myArray[i] = myArray[j]; 
-     myArray[j] = temp;
-   }
-}
 
+
+var fisherYates = function( myArray ) {
+    var i = myArray.length, j, temp;
+    if ( i === 0 ) return false;
+    while ( --i ) {
+        j = Math.floor( Math.random() * ( i + 1 ) );
+        temp = myArray[i];
+        myArray[i] = myArray[j]; 
+        myArray[j] = temp;
+    }
+}
 
 
 var highlightDirective = function($timeout) {
     return {
         link: function(scope, element, attributes) {
-            
-            
 
+            // Instantiate basic variables
             var el = $(element[0]);
             var id = attributes.highlight;
 
-            el.css({
-                padding : '0.4em',
+            // Store states CSS
+            el.data('css-unchecked', {
+                padding : scope.padding + 'em',
                 border : '1px solid transparent',
-                paddingRight: scope.max_padding + 'em'
-            });
-
-            el.data('css-animate', {
-                padding: el.css('padding'),
-                background: el.css('background'),
-                border: '1px solid transparent'
+                paddingRight: scope.side_padding + 'em',
+                background: 'transparent'
             }),
 
+            el.data('css-hover', {
+                background: '#FFF'
+            }),
+
+            el.data('css-sure-start', {
+                border: '1px solid #060',
+                paddingRight: scope.padding + 'em',
+                paddingLeft: scope.side_padding + 'em',
+                background: '#9F9'
+            }),
+
+            el.data('css-sure-end', {
+                border: '1px solid transparent',
+                background: '#DFD'
+            }),
+
+            el.data('css-doubt-start', {
+                border: '1px solid #F00',
+                paddingLeft: scope.side_padding + 'em',
+                paddingRight: scope.padding + 'em',
+                background: '#FF0'
+            }),
+
+            el.data('css-doubt-end', {
+                border: '1px solid #F00',
+                paddingRight: '0em',
+                background: '#FFB'
+            }),
+
+            // Instantiate state variables
             el.data('mouse-in', false);
             el.data('clicked', false);
 
+            // Setup unchecked css
+            el.css(el.data('css-unchecked'));
 
+            // Auxiliar for animation
+            var animateOrDie = function(status) {
+                var css_end = 'css-' + status + '-end';
+                var css_start = 'css-' + status + '-start';
+                if(scope.animate && typeof(el.animate) === 'function') {
+                    if(!(status == 'unchecked')) el.css(css_start);
+                    else css_end = 'css-unchecked';
+                    console.log('animando para ' + css_end);
+                    el.animate(el.data(css_end));
+                } else {
+                    if(status == 'unchecked') css_end = 'css-unchecked';
+                    console.log('mudando para ' + css_end);
+                    el.css(el.data(css_end));
+                }
+            }
 
-
-
+            // Bind mouseenter for hover effect
             element.bind('mouseenter', function() {
                 el.data('mouse-in', true);
-                 if(!el.data('clicked')) {
-                    el.css('background', '#FFF');
+                if(!el.data('clicked')) {
+                    el.css(el.data('css-hover'));
                 }
             });
 
+            // Bind mouseleave for hover effect
             element.bind('mouseleave', function() {
                 el.data('mouse-in', false);
                 if(!el.data('clicked')) {
-                    if(scope.animate && typeof(el.animate) === 'function') {
-                        el.animate(el.data('css-animate'));
-                    } else {
-                        el.css(el.data('css-animate'));
-                    }
+                    animateOrDie('unchecked');
                 }
             });
 
 
+            $(document).bind('inDoubt', function() {
+                if(el.data('clicked')) {
+                    animateOrDie('doubt');
+                }
+            });
+
+            $(document).bind('noDoubt', function() {
+                if(el.data('clicked')) {
+                    animateOrDie('sure');
+                }
+            });            
 
 
             element.bind('click', function() {
@@ -67,11 +117,15 @@ var highlightDirective = function($timeout) {
                     
                     el.data('clicked',false);
                     
-                    el.animate(el.data('css-animate'), 'fast', 'swing');
+                    animateOrDie('unchecked');
 
                     scope.removeChoice(id);
 
                     scope.$apply();
+
+                    if(scope.selected == 1) {
+                        $(document).trigger('noDoubt');
+                    }
 
                 } else {
                     
@@ -81,28 +135,17 @@ var highlightDirective = function($timeout) {
 
                         el.data('clicked',true);
 
-                        padding = (scope.selected > 1) ? 
-                            scope.max_padding/2 : scope.max_padding;
-
-                        el.css({
-                            border: '1px solid #F00',
-                            paddingLeft: padding + 'em',
-                            paddingRight: '0em',
-                            background: '#FF0'
-                        });
+                        if(scope.selected == 2) {
                         
+                            $(document).trigger('inDoubt');
                         
-                        if(scope.animate && typeof(el.animate) === 'function') {
-                            el.animate({
-                                border: '1px solid transparent',
-                                background: '#FFF'
-                            }, 2000, 'swing');
+                        } else if(scope.selected > 2) {
+                            animateOrDie('doubt');
+                        } else {                           
+                            animateOrDie('sure');
                         }
-
                     }
-
                 }
-                
             });
 
             $(document).bind('keyup', function(e) {
@@ -148,11 +191,11 @@ var QuestionCtrl = function($scope) {
     $scope.help_text_2 = '';
 
     $scope.selected = 0;
-    $scope.main = -1;
 
-    $scope.max_padding = 4;
+    $scope.padding = 0.4;
+    $scope.side_padding = 3;
     $scope.max_selection = 3;
-    $scope.animate = false;
+    $scope.animate = true;
     
     $scope.inDoubt = function() {
         var response = [];
@@ -170,21 +213,12 @@ var QuestionCtrl = function($scope) {
         return String.fromCharCode(code);
     }
 
-    $scope.choose = function(id) {
-        if($scope.selected < $scope.max_selection) {
-            $scope.choices[id][1] = true
-        }
-    }
-
     $scope.addChoice = function(id) {
         
         if($scope.selected < $scope.max_selection) {
            
             $scope.selected += 1;
             $scope.choices[id][1] = true;
-           
-            if($scope.selected == 1)
-                $scope.main = id;
 
             $scope.updateText();
 
@@ -200,6 +234,18 @@ var QuestionCtrl = function($scope) {
         $scope.updateText();
     }
 
+
+    $scope.getSelected = function() {
+        var selected = [];
+        for(c in $scope.choices) {
+            if($scope.choices[c][1]) {
+                selected.push(c);
+            }
+        }
+        return selected;
+    }
+
+
     $scope.updateText = function() {
 
         if($scope.selected == 0) {
@@ -212,20 +258,28 @@ var QuestionCtrl = function($scope) {
 
             $scope.answer_button_text = "Responder com certeza";
             $scope.answer_button_disabled = 'success';
-            $scope.help_text_1 = 'Você acredita que a letra (' + $scope.choiceLetter($scope.main) + ') seja a correta. Se não tiver certeza, pode selecionar até  2 outras respostas que acredite sejam corretas.';
+            $scope.help_text_1 = 'Você acredita que a letra (' + $scope.choiceLetter($scope.main) + ') seja a correta. Se não tiver certeza, pode selecionar até 2 outras respostas que acredite sejam corretas.';
 
         } else if($scope.selected > 1) {
 
             $scope.answer_button_text = "Responder em dúvida";
             $scope.answer_button_disabled = 'primary';
             
-            var ht = 'Você acredita que a letra (' + $scope.choiceLetter($scope.main) + ') seja a correta, mas está em dúvida entre a ';
+            var ht = 'Você está em dúvida entra as letras ';
 
-            doubt = $scope.inDoubt();
-            if(doubt.length>1) {
-                ht += 'letra (' + $scope.choiceLetter(doubt[0]) + ') e (' + $scope.choiceLetter(doubt[1]) + ')';
-            } else {
-                ht += 'letra (' + $scope.choiceLetter(doubt[0]) + ')';
+            var selected = $scope.getSelected();
+
+            
+            for(s in selected) {
+                if(s == 0) {
+                    ht += '(' + $scope.choiceLetter(s) + ')';
+                }
+                else if(s == $scope.selected-1) {
+                    ht += ' e (' + $scope.choiceLetter(s) + ')';
+                }
+                else {
+                    ht += ', (' + $scope.choiceLetter(s) + ')';
+                }
             }
 
             $scope.help_text_1 = ht;

@@ -112,7 +112,7 @@ Top Bar Title
     <div class="small-9 columns">
       <div  class="panel">
         <dl>
-          <dd ng-repeat="choice in choices" highlight="{{ $index }}" style="cursor:pointer"><span><b>{{ choiceLetter($index) }})</b> {{ choice[0] }}</span></dd>
+          <dd ng-repeat="choice in choices" highlight="{{ $index }}" ng-click="select($index)" style="cursor:pointer"><span><b>{{ choiceLetter($index) }})</b> {{ choice.text }}</span></dd>
         </dl>
       </div>
     </div>
@@ -130,16 +130,31 @@ Top Bar Title
           <p>{{ help_text_2 }}</p>
         </div>
       </div>
+
       <div class="row">
         <div class="columns">
-          <a href="#" class="button alert expand">
+          
+          <div class="switch round large">
+            <input id="x" name="switch-x" type="radio" ng-model="answer_mode" value="0">
+            <label for="x" onclick="">Erradas</label>
+            <input id="x1" name="switch-x" type="radio" ng-model="answer_mode" value="1">
+            <label for="x1" onclick="">Certas</label>
+            <span></span>
+          </div>
+        
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="columns">
+          <a href="" ng-click="kickMode()" class="button alert expand">
             Chutar!
           </a>
         </div>
       </div>
       <div class="row">
         <div class="columns">
-          <a href="#" class="button secondary expand">
+          <a href="" ng-click="reset()" class="button secondary expand">
             Limpar
           </a>
         </div>
@@ -148,9 +163,13 @@ Top Bar Title
   </div>
 
 
+    ANSWER MODE: {{ answer_mode }}</br>
+    SELECTED: {{ selected }}</br>
+    WRONG SELECTED: {{ wrong_selected }}</br>
+
 
     <ul >
-      <li ng-repeat="choice in choices"><span>{{ choiceLetter($index) }}</span> - {{ choice[1] }}</li>
+      <li ng-repeat="choice in choices"><span>{{ choiceLetter($index) }}</span> - {{ choice.selected }} - {{ choice.wrong }}</li>
     </ul>
 
     {{ main }}

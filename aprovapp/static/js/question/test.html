@@ -9,20 +9,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
 
-  <link rel="stylesheet" href="/static/foundation/css/normalize.css" />
-  <link rel="stylesheet" href="/static/foundation/css/foundation.css" />
+  <!--<link rel="stylesheet" href="/static/foundation/css/normalize.css" />
+  <link rel="stylesheet" href="/static/foundation/css/foundation.css" />-->
 
-  <!--<link rel="stylesheet" href="/static/almost-flat-ui/stylesheets/normalize.css" />
-  <link rel="stylesheet" href="/static/almost-flat-ui/stylesheets/app.css" />-->
+  <link rel="stylesheet" href="/static/almost-flat-ui/stylesheets/normalize.css" />
+  <link rel="stylesheet" href="/static/almost-flat-ui/stylesheets/app.css" />
 
   <link rel="stylesheet" href="/static/foundation/foundation_icons_general/stylesheets/general_foundicons.css" />
   <!-- <link rel="stylesheet" href="/static/foundation/foundation_icons_general_enclosed/stylesheets/general_enclosed_foundicons.css" /> -->
 
-  <script src="/static/foundation/js/vendor/custom.modernizr.js"></script>
+  <!--<script src="/static/foundation/js/vendor/custom.modernizr.js"></script>-->
+  <script src="/static/js/modernizr-latest.js"></script>
 
   <title>MODAL TEST</title>
 
-  <!-- <link href="/static/css/aprovapp.css" rel="stylesheet" media="screen"> -->
+  <link href="/static/js/question/question.css" rel="stylesheet" media="screen">
 
 
 </head>
@@ -92,74 +93,124 @@ Top Bar Title
 <!-- Main Page Content and Sidebar -->
 <div class="row">
 <!-- Contact Details -->
-<div class="large-9 columns">
+<div class="large-12 columns">
 
 <div ng-controller="QuestionCtrl">
 
-  <ul class="breadcrumbs">
-    <li><a href="#">Home</a></li>
-    <li><a href="#">Features</a></li>
-    <li class="unavailable"><a href="#">Gene Splicing</a></li>
-    <li class="current"><a href="#">Cloning</a></li>
-  </ul>
 
   <div class="row">
-    <div class="small-12 columns">
-      <h4 class="subheader">{{ enunciation }}</h4>  
-    </div>
-  </div>
-  <div class="row">
-    <div class="small-9 columns">
-      <div  class="panel">
-        <dl>
+    
+    <div class="small-8 large-9 columns">
+      
+      <div class="panel radius">
+        <h4 class="subheader">{{ enunciation }}</h4>  
+        <hr/>
+        <dl question>
           <dd ng-repeat="choice in choices" highlight="{{ $index }}" ng-click="select($index)" style="cursor:pointer"><span><b>{{ choiceLetter($index) }})</b> {{ choice.text }}</span></dd>
         </dl>
+
       </div>
+      
+
     </div>
-    <div class="small-3 columns">
+    
+    <!-- beggining of the messages area -->
+
+    <!-- start of pre-answer -->
+    <div ng-show="pre_answer_area" class="small-4 large-3 columns">
+      
       <div class="row">
         <div class="columns">
-          <a href="#" ng-class="answer_button_disabled" class="button expand">
+          <a href="#" ng-click="submitAnswer()" ng-class="answer_button_disabled" class="large button expand radius">
             {{ answer_button_text }}
           </a>
         </div>
       </div>
+      
       <div class="row">
-        <div class="columns" style="height: 200px">
-          <p>{{ help_text_1 }}</p>
-          <p>{{ help_text_2 }}</p>
+        <div class="columns">
+          <div class="alert-box secondary">
+            <p>{{ help_text_1 }}</p>
+          </div>
         </div>
       </div>
 
       <div class="row">
         <div class="columns">
           
-          <div class="switch round large">
-            <input id="x" name="switch-x" type="radio" ng-model="answer_mode" value="0">
-            <label for="x" onclick="">Erradas</label>
-            <input id="x1" name="switch-x" type="radio" ng-model="answer_mode" value="1">
-            <label for="x1" onclick="">Certas</label>
-            <span></span>
+
+          <a href="" ng-click="kickMode()" class="button expand radius" ng-class="{true:'alert', false:'alert-dark'}[kick_mode]">
+            MODO CHUTE
+          </a>
+
+          <div class="alert-box secondary">
+            <p>Em caso de pânico, entre em MODO CHUTE e seja feliz!</p>
           </div>
+         
+        </div>
+      </div>
+
+
+      <ul class="button-group radius expand">
+            <li><a href="#" class="button primary" ng-click="changeMode(click_right)" ng-class="click_right">Marcar<br/>Certas</a></li>
+            <li><a href="#" class="button primary" ng-click="changeMode(click_wrong)" ng-class="click_wrong">Marcar<br/>Erradas</a></li>
+      </ul>
+
+
+      <div class="row">
+        <div class="columns">
+
+          
         
         </div>
       </div>
 
+
+
       <div class="row">
         <div class="columns">
-          <a href="" ng-click="kickMode()" class="button alert expand">
-            Chutar!
-          </a>
-        </div>
-      </div>
-      <div class="row">
-        <div class="columns">
-          <a href="" ng-click="reset()" class="button secondary expand">
+          <a href="" ng-click="reset()" class="button secondary expand radius">
             Limpar
           </a>
         </div>
       </div>
+      
     </div>
+    <!-- end of pre-answer -->
+
+      <div ng-show="answering_area" class="small-4 large-3 columns">
+      <div class="row">
+        <div class="columns">
+          <p> ANSWERING </p>
+        </div>
+      </div>
+      </div>
+
+      <div ng-show="right_answer_area" class="small-4 large-3 columns">
+      <div class="row">
+        <div class="columns">
+          <a href="#" ng-click="restart()" class="large button expand success radius"><i class="general foundicon-checkmark"></i> RESPOSTA CERTA!</a>
+        </div>
+      </div>
+      </div>
+
+      <div ng-show="doubt_answer_area" class="small-4 large-3 columns">
+      <div class="row">
+        <div class="columns">
+          <a href="#" ng-click="restart()" class="large button expand primary radius"><i class="general foundicon-idea"></i> FOI POR POUCO! {{ showScore() }}%</a>
+        </div>
+      </div>
+      </div>
+
+      <div ng-show="wrong_answer_area" class="small-4 large-3 columns">
+      <div class="row">
+        <div class="columns">
+          <a href="#" ng-click="restart()" class="large button expand alert radius"><i class="general foundicon-error"></i> RESPOSTA ERRADA!</a>
+        </div>
+      </div>
+      </div>
+    
+
   </div>
 
 

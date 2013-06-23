@@ -1,2 +1,2 @@
 from aprovapp import app
-app.run(host='172.10.10.1', debug=True)
+app.run(host='192.168.0.80', debug=True)

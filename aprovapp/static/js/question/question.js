@@ -15,19 +15,6 @@ var fisherYates = function( myArray ) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 var highlightDirective = function($timeout) {
     return {
         link: function(scope, element, attributes) {
@@ -38,68 +25,73 @@ var highlightDirective = function($timeout) {
 
             //CSS
             var padding = 0.4;
-            var side_padding = 3;
+            var side_padding = 2;
+
+            var normal_text_color = '#333';
+            var wrong_text_color = '#999';
+            var sure_background = '#CFC';
+            var doubt_background = '#CDE5F4';
+
 
             // Store states CSS
             el.data('css-unchecked', {
                 padding : padding + 'em',
-                border : '1px solid transparent',
                 paddingRight: side_padding + 'em',
                 background: 'transparent',
-                color: '#000',
+                border: '1px solid transparent',
+                color: normal_text_color,
                 textDecoration: 'none'
-            }),
+            });
+
 
             el.data('css-hover', {
                 background: '#FFF'
-            }),
+            });
+
 
             el.data('css-hover-out', {
                 background: 'transparent'
-            }),
+            });
 
-            el.data('css-sure-start', {
-                border: '1px solid #060',
+
+            el.data('css-sure', {
                 paddingRight: padding + 'em',
                 paddingLeft: side_padding + 'em',
-                background: '#9F9',
-            }),
-
-            el.data('css-sure-end', {
-                border: '1px solid transparent',
-                background: '#CFC',
-                color: '#000',
+                background: sure_background,
+                color: normal_text_color,
                 textDecoration: 'none'
-            }),
+            });
 
-            el.data('css-doubt-start', {
-                border: '1px solid #FB0',
-                paddingLeft: side_padding + 'em',
+
+            el.data('css-doubt', {
                 paddingRight: padding + 'em',
-                background: '#FF0'
-            }),
-
-            el.data('css-doubt-end', {
-                border: '1px solid transparent',
-                paddingRight: '0em',
-                background: '#FFB',
-                color: '#000',
+                paddingLeft: side_padding + 'em',
+                background: doubt_background,
+                color: normal_text_color,
                 textDecoration: 'none'
-            }),
+            });
 
-            el.data('css-wrong-start', {
-                textDecoration: 'line-through',
-                color: '#CCC',
-                border: '1px solid #F00',
-                background: '#F00'
-            }),
 
-            el.data('css-wrong-end', {
+            el.data('css-wrong', {
                 textDecoration: 'line-through',
-                color: '#CCC',
-                border: '1px solid transparent',
-                background: 'transparent',
-            }),
+                color: wrong_text_color,
+                background: 'transparent'
+            });
+
+            el.data('css-error', {
+                paddingRight: padding + 'em',
+                paddingLeft: side_padding + 'em',
+                background: "#FADEDA",
+                color: normal_text_color,
+                textDecoration: 'none'
+            });
+
+            el.data('css-not-right', {
+                textDecoration: 'none',
+                color: normal_text_color,
+                background: 'transparent'
+            });
+
 
             // Instantiate state variables
             el.data('mouse-in', false);
@@ -114,42 +106,41 @@ var highlightDirective = function($timeout) {
 
             // Auxiliar for animation
             var animateOrDie = function(status) {
-                var css_end = 'css-' + status + '-end';
-                var css_start = 'css-' + status + '-start';
-                if(scope.animate && typeof(el.animate) === 'function') {
-                    var time = 200;
-                    if(!(status == 'unchecked')) {
-                        el.css(el.data(css_start));
-                        var time = 1000;
-                    } else {
-                        css_end = 'css-unchecked';
-                    }
-                    el.animate(el.data(css_end),time,'swing');
+                var css_end = 'css-' + status;
+                if(scope.animate && typeof(el.animate) == 'function' && Modernizr.cssanimations) {
+                    var time = 'fast';
+                    el.animate(el.data(css_end), time,'swing');
                 } else {
-                    if(status == 'unchecked') css_end = 'css-unchecked';
                     el.css(el.data(css_end));
                 }
             }
 
             // Bind mouseenter for hover effect
             element.bind('mouseenter', function() {
-                scope.$apply(function() {
-                    el.data('mouse-in', true);
-                    if(!(el.data('selected') || el.data('wrong'))) {
-                        el.css(el.data('css-hover'));
-                    }
-                });
+                if(!Modernizr.touch) {
+                    scope.$apply(function() {
+                        el.data('mouse-in', true);
+                        if(el.data('wrong')) {
+                            css = el.data('css-hover');
+                            css.textDecoration = 'none';
+                            el.css(css);
+                        }
+                    });
+                }
             });
+
 
 
             // Bind mouseleave for hover effect
             element.bind('mouseleave', function() {
-                scope.$apply(function() {
-                    el.data('mouse-in', false);
-                    if(!(el.data('selected') || el.data('wrong'))) {
-                        animateOrDie('unchecked');
-                    }
-                });
+                if(!Modernizr.touch) {
+                    scope.$apply(function() {
+                        el.data('mouse-in', false);
+                        if(el.data('wrong')) {
+                            el.css(el.data('css-wrong'));
+                        }
+                    });
+                }
             });     
 
 
@@ -160,13 +151,10 @@ var highlightDirective = function($timeout) {
             });
 
 
-            // Reset question if answer mode changes
-            scope.$watch('answer_mode', function() {
-                el.trigger('clearSelection');
-            });
-
-
             scope.$watch('selected', function() {
+                    
+                if(scope.answered) return;
+
                 if(scope.choices[id].selected) {
 
                     if(scope.selected > 1) {
@@ -202,21 +190,30 @@ var highlightDirective = function($timeout) {
                 }
             });
 
-            scope.$watch('kick_mode', function() {
-                if(scope.kick_mode) {
-                    console.log('kick man');
-                    
-                    var f = function() {
-                        animateOrDie('doubt');
-                        $timeout(function() {
-                            animateOrDie('unchecked');
-                            f();
-                        }, 1100, 'swing');
+            scope.$watch('answered', function() {
+                
+                if(scope.answered) {
+
+                    if(scope.right_answer == id) {
+                        animateOrDie('sure');
+                    } else if(scope.answer[id]) {
+                        animateOrDie('error');   
+                    } else {
+                        animateOrDie('not-right');   
                     }
 
-                    f();
-
                 }
+
+            });
+
+            scope.$watch('kick_mode', function() {
+
+                if(scope.kick_mode) {
+                    animateOrDie('error');
+                } else {
+                    animateOrDie('unchecked');
+                }
+
             });
 
 
@@ -248,7 +245,7 @@ var highlightDirective = function($timeout) {
 
 
 
-var QuestionCtrl = function($scope) {
+var QuestionCtrl = function($scope, $timeout) {
     
     $scope.enunciation = 'Com fundamento na Lei no 6.745, de 28 de dezembro de 1985, que estabelece o Estatuto dos Servidores Públicos Civis do Estado de Santa Catarina, assinale a alternativa correta.';
     $scope.choices = [
@@ -270,13 +267,96 @@ var QuestionCtrl = function($scope) {
     $scope.help_text_2 = '';
 
     $scope.answer_mode = 1;
+    $scope.click_right = 'disabled';
+    $scope.click_wrong = '';
+
     $scope.kick_mode = false;
 
     $scope.selected = 0;
     $scope.wrong_selected = 0;
 
-    $scope.animate = true;
+    $scope.animate = (Modernizr.touch) ? false : true;
 
+    $scope.answered = false;
+    $scope.answer_score = 0;
+    $scope.answer = {};
+    $scope.right_answer = -1;
+    $scope.is_right = false;
+
+    $scope.pre_answer_area = true;
+    $scope.answering_area = false;
+    $scope.post_anwer_area = false;
+
+
+
+
+    $scope.submitAnswer = function() {
+        
+        // only submit if something is selected
+        if($scope.selected < 1) return;
+
+        // Change what is show
+        $scope.pre_answer_area = false;
+        $scope.post_answer_area = false;
+        $scope.answering_area = true;
+
+        // send the message via $http
+        // mocking with $timout
+        $timeout(function() {
+
+            // action on success
+
+            $scope.right_answer = 1;
+
+            var selected = $scope.getAnswer();
+
+            $scope.reset();
+
+            for(c in $scope.answer) {
+                if($scope.answer[c] && c == $scope.right_answer) {
+                    $scope.is_right = true;
+                    $scope.answer_score = 1/selected;
+                }
+            }
+
+            if($scope.answer_score == 0) {
+
+                $scope.pre_answer_area = false;
+                $scope.answering_area = false;
+                $scope.right_answer_area = false;
+                $scope.doubt_answer_area = false;
+                $scope.wrong_answer_area = true;
+
+                $scope.answer_score = 1;
+
+            } else if($scope.answer_score < 1) {
+
+                $scope.pre_answer_area = false;
+                $scope.answering_area = false;
+                $scope.right_answer_area = false;
+                $scope.doubt_answer_area = true;
+                $scope.wrong_answer_area = false;
+
+            } else {
+             
+                $scope.pre_answer_area = false;
+                $scope.answering_area = false;
+                $scope.right_answer_area = true;
+                $scope.doubt_answer_area = false;
+                $scope.wrong_answer_area = false;
+
+            }
+
+            $scope.answered = true;
+
+        }, 2000);
+
+        var in_case_of_error = function() {
+
+            $scope.answered = false;
+
+        }
+    }
 
     $scope.choiceLetter = function(code) {
         code = parseInt(code);
@@ -284,7 +364,34 @@ var QuestionCtrl = function($scope) {
         return String.fromCharCode(code);
     }
 
+    $scope.changeMode = function(enable) {       
+        $scope.answer_mode = ($scope.answer_mode == 1) ? 0 : 1;
+    }
+
+    $scope.getAnswer = function() {
+        var answer = [];
+        var selected = 0;
+        for(c in $scope.choices) {
+            var choice = $scope.choices[c];
+            if(choice.selected) {
+                answer[c] = true;
+                selected += 1;
+            }
+            else answer[c] = false;
+        }
+        $scope.answer = answer;
+        return selected;
+    }
+
     $scope.select = function(id) {
+
+        if($scope.answered) return;
+
+        if($scope.kick_mode) {
+            $scope.addChoice(id);
+            $scope.submitAnswer();
+            return;
+        }
 
         if($scope.answer_mode == 1) {
             if($scope.choices[id].selected) $scope.removeChoice(id);
@@ -354,15 +461,42 @@ var QuestionCtrl = function($scope) {
         $scope.wrong_selected = 0;
     }
 
+    $scope.restart = function() {
+        
+        $scope.reset();
+
+        $scope.pre_answer_area = true;
+        $scope.answering_area = false;
+        $scope.right_answer_area = false;
+        $scope.doubt_answer_area = false;
+        $scope.wrong_answer_area = false;
+
+        $scope.answered = false;
+        $scope.answer_score = 0;
+        $scope.answer = {};
+        $scope.right_answer = -1;
+        $scope.is_right = false;
+
+        $scope.kick_mode = false;
+
+    }
+
 
     $scope.kickMode = function() {
         $scope.kick_mode = ($scope.kick_mode) ? false : true;
         $scope.reset();
     }
 
-
     $scope.$watch('answer_mode', function() {
+        $scope.kick_mode = false;
         $scope.reset();
+        if($scope.answer_mode == 1) {
+            $scope.click_right = 'primary-dark';
+            $scope.click_wrong = 'inverse';
+        } else {
+            $scope.click_right = 'inverse';
+            $scope.click_wrong = 'primvary-dark';
+        }
     });
 
 
@@ -379,6 +513,12 @@ var QuestionCtrl = function($scope) {
     });
 
 
+
+
+    $scope.showScore = function() {
+        return ($scope.answer_score*100).toFixed(1);
+    }
+
     $scope.updateText = function() {
 
         var selected = $scope.getSelected();
@@ -386,35 +526,21 @@ var QuestionCtrl = function($scope) {
         if($scope.selected == 0) {
 
             $scope.answer_button_text = "Escolha a alternativa correta";
-            $scope.answer_button_disabled = "primary disabled";
-            $scope.help_text_1 = 'Analise a questão e clique na resposta correta.';
+            $scope.answer_button_disabled = "secondary disabled";
+            $scope.help_text_1 = 'Marque uma alternativa, se tiver certeza, ou mais de uma se estiver em dúvida.';
 
         } else if($scope.selected == 1) {
 
             $scope.answer_button_text = "Responder com certeza";
             $scope.answer_button_disabled = 'success';
-            $scope.help_text_1 = 'Você acredita que a letra (' + $scope.choiceLetter(selected[0]) + ') seja a correta. Se não tiver certeza, pode selecionar até 2 outras respostas que acredite sejam corretas.';
+            $scope.help_text_1 = 'Se estiver certa você leva todos os pontos desta questão!';
 
         } else if($scope.selected > 1) {
 
-            $scope.answer_button_text = "Responder em dúvida";
+            $scope.answer_button_text = "Responder em dúvida entre " + $scope.selected;
             $scope.answer_button_disabled = 'primary';
             
-            var ht = 'Você está em dúvida entra as letras ';
-
-            for(s in selected) {
-                if(s == 0) {
-                    ht += '(' + $scope.choiceLetter(s) + ')';
-                }
-                else if(s == $scope.selected-1) {
-                    ht += ' e (' + $scope.choiceLetter(s) + ')';
-                }
-                else {
-                    ht += ', (' + $scope.choiceLetter(s) + ')';
-                }
-            }
-
-            $scope.help_text_1 = ht;
+            $scope.help_text_1 = 'Se uma das escolhidas for a correta, isso conta pontos para você.';
 
         }
     }

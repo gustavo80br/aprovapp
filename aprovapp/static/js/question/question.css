@@ -1,0 +1,16 @@
+BODY
+{
+	background-color: #39140C;
+	background-image: url(../../img/desk-bg.jpg);
+}
+.panel
+{
+	background-color: #FFF;
+}
+I.general
+{
+	font-size: 2em;
+	display: block;
+	float: left;
+	padding: 0px 14px;
+}

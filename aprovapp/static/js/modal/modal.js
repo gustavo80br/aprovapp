@@ -4,7 +4,7 @@ var dontTouchDirective = function() {
         
         replace: true,
         
-        template: '<div ng-click="onClick()" ng-controller="dontTouchCtrl">',
+        template: '<div style="position:fixed" ng-click="onClick()" ng-controller="dontTouchCtrl">',
         
         link: function(scope, element, attributes) {
             
@@ -87,7 +87,8 @@ var DontTouchCtrl = function($scope, dontTouchService, modalService) {
     $scope.on = function(block, animate) {
         $scope.toggle = true;
         if(block) $scope.block = true;
-        if(animate) $scope.animate = animate;
+        if(!(typeof animate === "undefined"))
+            $scope.animate = animate;
     }
 
     $scope.off = function() {
@@ -183,21 +184,24 @@ function registerDontTouch(module) {
 
 
 var modalDirective = function(dontTouchService) {
+    
     return {
         replace: true,
         template:   '<div id="modal-box" class="reveal-modal" ng-controller="ModalCtrl">'
                   + '<h2 ng-show="title.length">{{ title }}</h2>'
                   + '<p class="lead" ng-show="lead.length">{{ lead }}</p>'
                   + '<p ng-show="txt.length">{{ txt }}</p>'
+                  + '<img ng-src="{{ img }}">{{ txt }}</p>'
                   + '<a class="close-reveal-modal" ng-click="dismissAction()">x</a>'
                   + '<div>'
                   + '<ul class="button-group">'
-                  + '<li><a href="#" class="button round small success" ng-click="confirmAction()" ng-show="confirm_btn" style="margin-right:10px">{{ confirm_caption }}</a></li>'
-                  + '<li><a href="#" class="button round small primary" ng-click="customAction()" ng-show="action_btn" style="margin-right:10px">{{ action_caption }}</a></li>'
-                  + '<li><a href="#" class="button round small alert" ng-click="dismissAction()" ng-show="dismiss_btn" style="margin-right:10px">{{ dismiss_caption }}</a></li>'
+                  + '<li><a href="" class="button round small success" ng-click="confirmAction()" ng-show="confirm_btn" style="margin-right:10px">{{ confirm_caption }}</a></li>'
+                  + '<li><a href="" class="button round small primary" ng-click="customAction()" ng-show="action_btn" style="margin-right:10px">{{ action_caption }}</a></li>'
+                  + '<li><a href="" class="button round small alert" ng-click="dismissAction()" ng-show="dismiss_btn" style="margin-right:10px">{{ dismiss_caption }}</a></li>'
                   + '</ul>'
                   + '</div>'
                   + '</div>',
+        
         link: function($scope, element, attributes) {
             
             element = $(element[0]);
@@ -213,24 +217,39 @@ var modalDirective = function(dontTouchService) {
 
             $scope.default_top = parseInt(element.css('top'),10);
 
-            $scope.$watch(
-                'visible',
-                function(value) {
+            // Watch for visible property changes
+            $scope.$watch('visible',function(value) {
 
                     var top = 0;
                     var opacity = 0;
 
                     if (value) {
                         //show
-
-                        top = ($scope.default_top + $(window).scrollTop());
+                        $scope.start_scroll = $(window).scrollTop();
+                        top = ($scope.default_top + $scope.start_scroll);
                         opacity = 1;
-
+                    
                     } else {
                         //hide 
-
                         top = -(element.height() + $scope.default_top + 10);
                         opacity = 0;
+
+                        // Reset Mobile browsers viewport/pinch zoom
+                        if(Modernizr.touch) {
+                            var viewport = $('meta[name=viewport]');             
+                            $timeout(function() {
+                                viewport.prop('content', 'initial-scale=1.0, maximum-scale=1.0, user-scalable=1');
+                            }, 300);
+                            $timeout(function() {
+                                viewport.prop('content', 'initial-scale=1.0, maximum-scale=10.0, user-scalable=1');
+                            }, 500);
+                        }
+
+                        // Scroll back to the position before the modal open
+                        if(typeof $scope.start_scroll != 'undefined') {
+                            console.log('->' + $scope.start_scroll);
+                            window.scrollTo(0,$scope.start_scroll);
+                        }
 
                     }
 
@@ -240,7 +259,7 @@ var modalDirective = function(dontTouchService) {
                     }
 
                     if(typeof(element.animate) === 'function'  && $scope.animate) {
-                        element.animate(prop, 'swing', 250);
+                        element.animate(prop, 250, 'swing');
                     } else {
                         element.css(prop);
                     }
@@ -252,7 +271,9 @@ var modalDirective = function(dontTouchService) {
 }
 
 
-var ModalCtrl = function($scope, $timeout, modalService, dontTouchService) {
+
+
+var ModalCtrl = function($scope, $timeout, stateManager, modalService, dontTouchService) {
 
     $scope.title = '';
     $scope.lead = '';
@@ -269,9 +290,13 @@ var ModalCtrl = function($scope, $timeout, modalService, dontTouchService) {
     $scope.dismiss_caption = 'NO';
     $scope.action_caption = 'ACTION';
 
+    $scope.img = "";
+
     $scope.onConfirm = function() { return true; }
     $scope.onDismiss = function() { return true; }
     $scope.onAction = function() { return true; }
+
+    $scope.default_top = 0;
 
     $scope.defaults = {
         animate : true,
@@ -315,13 +340,11 @@ var ModalCtrl = function($scope, $timeout, modalService, dontTouchService) {
     }
 
 
-
-    $scope.default_top = 0;
-
     $scope.showButtons = function() {
         if($scope.confirm_btn ||  $scope.dismiss_btn  || $scope.action_btn) return true;
         else return false;
     };
+
 
     $scope.hideButtons = function() {
         $scope.confirm_btn = false;
@@ -329,22 +352,50 @@ var ModalCtrl = function($scope, $timeout, modalService, dontTouchService) {
         $scope.action_btn = false;
     }
 
+
     $scope.show = function(block) {
-        $scope.visible = true;
-        dontTouchService.on(block, $scope.animate, function() {
-            $scope.hide();
-        });
-    }
+        if(!$scope.visible) {
+            
+            // Set modal open state
+            $scope.visible = true;
+            stateManager.pushState([$scope.initial_state,"modal"]);
+
+            // Turn on background overlay
+            dontTouchService.on(block, $scope.animate, function() {
+                $scope.hide();
+            });
+        }
+    };
+
 
     $scope.hide = function() {
-        $scope.visible = false;
-        $timeout(function() {
-            $scope.loadDefaults();
-        }, 250);
-        dontTouchService.off();
-    }
+        if($scope.visible) {
+            
+            // Get out of open modal state
+            $scope.visible = false;
+            stateManager.replaceState([$scope.initial_state]);
+
+            // Turn off the background overlay
+            dontTouchService.off();
+
+            // Reset modal contents, timeout wait for animation end
+            $timeout(function() {
+                $scope.loadDefaults();
+            }, 250);
+        
+        }
+    };
+
 
     modalService.init($scope);
+
+    stateManager.registerInitialiser(function (pathComponents) {
+        $scope.initial_state = pathComponents[0];
+        if(!(pathComponents[1] == 'modal')) {
+            $scope.hide();
+        }
+    })($scope);
+
 }
 
 
@@ -415,6 +466,6 @@ var modalService = function($timeout) {
 
 function registerModal(module) {
     module.factory('modalService', ['$timeout', modalService]);
-    module.controller('ModalCtrl', ['$scope', '$timeout', 'modalService', 'dontTouchService', ModalCtrl]);
+    module.controller('ModalCtrl', ['$scope', '$timeout', 'stateManager', 'modalService', 'dontTouchService', ModalCtrl]);
     module.directive('modal', modalDirective);    
 }

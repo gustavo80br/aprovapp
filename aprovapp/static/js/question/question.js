@@ -245,7 +245,7 @@ var highlightDirective = function($timeout) {
 
 
 
-var QuestionCtrl = function($scope, $timeout) {
+var QuestionCtrl = function($scope, $timeout, modalService) {
     
     $scope.enunciation = 'Com fundamento na Lei no 6.745, de 28 de dezembro de 1985, que estabelece o Estatuto dos Servidores Públicos Civis do Estado de Santa Catarina, assinale a alternativa correta.';
     $scope.choices = [
@@ -481,7 +481,6 @@ var QuestionCtrl = function($scope, $timeout) {
 
     }
 
-
     $scope.kickMode = function() {
         $scope.kick_mode = ($scope.kick_mode) ? false : true;
         $scope.reset();
@@ -545,6 +544,39 @@ var QuestionCtrl = function($scope, $timeout) {
         }
     }
 
+    $scope.showReference = function() {
+
+        if(Modernizr.mq('only all and (max-width: 768px)')) {
+
+            modalService.alert({
+                block: false,
+                title: "",
+                lead: "",
+                txt: "",
+                confirm_caption: "CLOSE",
+                img: 'http://placehold.it/1024x2048',
+                size: "fullscreen", 
+                spinner: true,
+                spinnerColor: 'black',
+                overlayColor: 'white',
+                overlayOpacity: 1
+            });
+
+        } else {
+
+            modalService.alert({
+                block: false,
+                title: "",
+                lead: "",
+                txt: "",
+                confirm_caption: "CLOSE",
+                img: 'http://placehold.it/1024x2048',
+                spinner: true,
+            });
+
+        }
+    }
+
 }
 
 
@@ -557,6 +589,6 @@ var QuestionCtrl = function($scope, $timeout) {
 
 
 function registerQuestion(module) {
-    module.controller('QuestionCtrl', QuestionCtrl);
+    module.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', QuestionCtrl]);
     module.directive('highlight', highlightDirective);
 }

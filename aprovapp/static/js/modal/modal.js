@@ -4,29 +4,39 @@ var dontTouchDirective = function() {
         
         replace: true,
         
-        template: '<div style="position:fixed" ng-click="onClick()" ng-controller="dontTouchCtrl">',
+        template: '<div id="overlay" ng-click="onClick()" ng-controller="dontTouchCtrl">',
         
         link: function(scope, element, attributes) {
-            
-            console.log('e o dont touch mano');
-            console.log(element);
 
-            element = $(element[0]);
+            element = $(element[0]);            
+
+            var getDocHeight = function() {
+                var body = document.body;
+                var html = document.documentElement;
+                return Math.max(body.scrollHeight, body.offsetHeight, 
+                                html.clientHeight, html.scrollHeight, html.offsetHeight);
+            }
+
+            $(window).bind('resize', function() {
+                element.css('height', getDocHeight());
+                console.log('Resizee');
+            });
+
+            alert('nicuri');
 
             css = {
                 'display': 'none',
-                'opacity': 0.8,
-                'background-color':'#000',
-                'position':'fixed',
+                'opacity': scope.opacity,
+                'background-color': scope.color,
+                'position':'absolute',
                 'width':'100%',
-                'height':'100%',
-                'top':'0px',
-                'left':'0px',
+                'height': getDocHeight(),
+                'top':'0',
+                'left':'0',
                 'z-index':1000
             }
 
             $(document).keyup(function(e) {
-                console.log(e.keyCode);
                 if (e.keyCode == 27) { 
                     scope.onClick();
                     scope.$apply();
@@ -34,6 +44,42 @@ var dontTouchDirective = function() {
             });
 
             element.css(css);
+
+            var opts = {
+              lines: 13, // The number of lines to draw
+              length: 19, // The length of each line
+              width: 7, // The line thickness
+              radius: 41, // The radius of the inner circle
+              corners: 1, // Corner roundness (0..1)
+              rotate: 32, // The rotation offset
+              direction: 1, // 1: clockwise, -1: counterclockwise
+              color: scope.spinnerColor, // #rgb or #rrggbb
+              speed: 1, // Rounds per second
+              trail: 24, // Afterglow percentage
+              shadow: false, // Whether to render a shadow
+              hwaccel: false, // Whether to use hardware acceleration
+              className: 'spinner', // The CSS class to assign to the spinner
+              zIndex: 2e9, // The z-index (defaults to 2000000000)
+              top: 'auto', // Top position relative to parent in px
+              left: 'auto' // Left position relative to parent in px
+            };
+
+            var spinner = new Spinner(opts).spin();
+            element.append(spinner.el);
+
+            scope.$watch('toggle_spinner',
+                function(toggle_spinner) {
+
+                    if(!toggle_spinner) {
+                        spinner.stop();
+                    } else {
+                        opts.color = scope.spinnerColor;
+                        spinner = new Spinner(opts).spin();
+                        element.append(spinner.el);
+                    }
+
+                }
+            );
 
             scope.$watch(
                 'toggle',
@@ -43,26 +89,31 @@ var dontTouchDirective = function() {
                     display = '';
 
                     if(value) {
+
                         display = 'block';
                         prop = {
-                            'opacity': 0.8
+                            'background-color': scope.color,
+                            'opacity': scope.opacity
                         };
+
+                        scope.toggle_spinner = scope.spinner;
+
                     } else {
+
                         display = 'none';
                         prop = {
                             'opacity': 0
                         };
+                        spinner.stop();
                     }
 
                     if(typeof(element.animate) === 'function'  && scope.animate) {
                         if(value) {
-                            console.log('in');
                             element.css('display', 'block');
                             element.animate(prop, 'fast', 'swing', function() {
                                 element.css('display', 'block');
                             });
                         } else {
-                            console.log('out');
                             element.animate(prop, 'fast', 'swing', function() {
                                 element.css('display', 'none');
                             });
@@ -74,26 +125,50 @@ var dontTouchDirective = function() {
 
                 }
             );
+
+            scope.$watch(
+                'resize_trigger',
+                function(val) {
+                    element.css('height', getDocHeight());
+                }
+            );
+
+
         }
     }
 }
 
-var DontTouchCtrl = function($scope, dontTouchService, modalService) {
-    
-    $scope.toggle = false;
-    $scope.block = false;
-    $scope.animate = true;
 
-    $scope.on = function(block, animate) {
+
+
+var DontTouchCtrl = function($scope, dontTouchService, modalService) {
+
+    $scope.defaults = {
+        toggle : false,
+        block : false,
+        animate : true,
+        spinner : false,
+        color: 'black',
+        spinnerColor: 'white',
+        opacity: 0.8,
+        resize_trigger: 0
+    }
+
+    $scope.loadProperies = function(prop) {
+        for(p in prop) $scope[p] = prop[p];
+    }
+
+    $scope.loadProperies($scope.defaults);
+
+    $scope.on = function(prop) {
+        $scope.loadProperies(prop);
         $scope.toggle = true;
-        if(block) $scope.block = true;
-        if(!(typeof animate === "undefined"))
-            $scope.animate = animate;
     }
 
     $scope.off = function() {
         $scope.toggle = false;
         $scope.block = false;
+        $scope.loadProperies($scope.defaults);
     }
 
     $scope.onClick = function() {
@@ -107,7 +182,9 @@ var DontTouchCtrl = function($scope, dontTouchService, modalService) {
 }
 
 
-var dontTouchService = function() {
+
+
+var dontTouchService = function($timeout) {
 
     var dt = {}
 
@@ -117,8 +194,8 @@ var dontTouchService = function() {
         this.scope = scope;
     }
 
-    dt.on = function(block, animate, off_callback) {
-        this.scope.on(block, animate);
+    dt.on = function(prop, off_callback) {
+        this.scope.on(prop);
         if(typeof(off_callback) === 'function') {
             this.off_calback = off_callback;
         }
@@ -131,13 +208,21 @@ var dontTouchService = function() {
         }
     }
 
+    dt.toggle_spinner = function() {
+        if(this.scope.spinner) this.scope.toggle_spinner = !this.scope.toggle_spinner;
+    }
+
+    dt.resize = function() {
+        this.scope.resize_trigger++;
+    }
+
     return dt;
 
 }
 
 
 function registerDontTouch(module) {
-    module.factory('dontTouchService', dontTouchService);
+    module.factory('dontTouchService', ['$timeout', dontTouchService]);
     module.controller('dontTouchCtrl', ['$scope', 'dontTouchService', 'modalService', DontTouchCtrl]);
     module.directive('dontTouch', dontTouchDirective);
 }
@@ -183,15 +268,15 @@ function registerDontTouch(module) {
 
 
 
-var modalDirective = function(dontTouchService) {
+var modalDirective = function($timeout, dontTouchService) {
     
     return {
         replace: true,
-        template:   '<div id="modal-box" class="reveal-modal" ng-controller="ModalCtrl">'
+        template:   '<div id="modal-box" class="reveal-modal {{ size }}" ng-controller="ModalCtrl">'
                   + '<h2 ng-show="title.length">{{ title }}</h2>'
                   + '<p class="lead" ng-show="lead.length">{{ lead }}</p>'
                   + '<p ng-show="txt.length">{{ txt }}</p>'
-                  + '<img ng-src="{{ img }}">{{ txt }}</p>'
+                  + '<img id="modal-img" ng-show="img.length" ng-src="{{ img }}" image-load>{{ txt }}</p>'
                   + '<a class="close-reveal-modal" ng-click="dismissAction()">x</a>'
                   + '<div>'
                   + '<ul class="button-group">'
@@ -206,35 +291,58 @@ var modalDirective = function(dontTouchService) {
             
             element = $(element[0]);
             
-            element.css({
-                'display' : 'block',
-                'visibility' : 'visible',
-                'opacity' : 0,
-                'z-index' : 1001,
-            });
+            var prop = {
+                'display': 'block',
+                'visibility': 'visible',
+                'opacity': 0,
+                'z-index': 1001
+            }
+
+            element.css(prop);
+            element.data('visible', true);
             
             $scope.loadDefaults();
 
             $scope.default_top = parseInt(element.css('top'),10);
 
             // Watch for visible property changes
-            $scope.$watch('visible',function(value) {
+            $scope.$watch('[visible, img_loaded, img]', function(value) {
+
+                    var is_visible = value[0];
+                    var is_loaded = value[1];
+                    var has_image = value[2].length;
+                    var complete = $('#modal-img')[0].complete;
 
                     var top = 0;
-                    var opacity = 0;
+                    var opacity;
+                    var status_changed = false;
 
-                    if (value) {
+                    if ((is_visible && has_image && (is_loaded||complete)) || (is_visible && !has_image && !is_loaded) ) {
                         //show
                         $scope.start_scroll = $(window).scrollTop();
                         top = ($scope.default_top + $scope.start_scroll);
                         opacity = 1;
+                        
+                        if($scope.size == 'fullscreen') {
+                            window.scrollTo(0,0);
+                            top = 0;
+                        }
+
+                        dontTouchService.toggle_spinner();
+
+                        element.data('visible',true);
+                        var status_changed = true;                 
                     
-                    } else {
+                    } else if(!is_visible && element.data('visible')) {
+                        console.log('I HIDE');
                         //hide 
+
+                        element.data('visible', false);
+
                         top = -(element.height() + $scope.default_top + 10);
                         opacity = 0;
 
-                        // Reset Mobile browsers viewport/pinch zoom
+                        //Reset Mobile browsers viewport/pinch zoom
                         if(Modernizr.touch) {
                             var viewport = $('meta[name=viewport]');             
                             $timeout(function() {
@@ -247,30 +355,59 @@ var modalDirective = function(dontTouchService) {
 
                         // Scroll back to the position before the modal open
                         if(typeof $scope.start_scroll != 'undefined') {
-                            console.log('->' + $scope.start_scroll);
                             window.scrollTo(0,$scope.start_scroll);
+                        }
+                        var status_changed = true;
+                    }
+
+
+                    if(status_changed) {
+
+                        var prop = {
+                            'top' : top,
+                            'opacity' : opacity
+                        }
+
+                        if($scope.size == 'fullscreen') {
+                            prop['border'] = 0;
+                            prop['box-shadow'] = 'none';
+                        } else {
+                            prop['border'] = '1px solid rgb(102, 102, 102)';
+                            prop['box-shadow'] = '0px 0px 10px rgba(0, 0, 0, 0.4)';
+                        }
+
+                        if(typeof(element.animate) === 'function'  && $scope.animate) {
+                            element.animate(prop, 250, 'swing', function() {
+                                $timeout(function() {
+                                    dontTouchService.resize();
+                                }, 1);
+                            });
+                        } else {
+                            element.css(prop);
                         }
 
                     }
 
-                    var prop = {
-                        'top' : top,
-                        'opacity' : opacity
-                    }
-
-                    if(typeof(element.animate) === 'function'  && $scope.animate) {
-                        element.animate(prop, 250, 'swing');
-                    } else {
-                        element.css(prop);
-                    }
-
-                }
+                }, true
             );
         }
     }
 }
 
 
+var imageLoadDirective = function() {
+    return {
+        link: function(scope, element, attrs) {   
+
+            $(element[0]).on("load" , function(e){ 
+
+                scope.img_loaded = true;
+                scope.$apply();
+
+            });
+        }
+    }
+}
 
 
 var ModalCtrl = function($scope, $timeout, stateManager, modalService, dontTouchService) {
@@ -291,6 +428,9 @@ var ModalCtrl = function($scope, $timeout, stateManager, modalService, dontTouch
     $scope.action_caption = 'ACTION';
 
     $scope.img = "";
+    $scope.img_loaded = false;
+
+    $scope.size = "";
 
     $scope.onConfirm = function() { return true; }
     $scope.onDismiss = function() { return true; }
@@ -306,6 +446,13 @@ var ModalCtrl = function($scope, $timeout, stateManager, modalService, dontTouch
         title : 'Modal Box',
         lead : 'The great Modal service',
         txt : 'A true friend in all situations!',
+        size: '',
+        img: '',
+        img_loaded: false,
+        spinner: false,
+        spinnerColor: 'white',
+        overlayColor: 'black',
+        overlayOpacity: 0.8,
         onConfirm : function() { return true; },
         onDismiss : function() { return true; },
         onAction : function() { return true; }
@@ -360,8 +507,19 @@ var ModalCtrl = function($scope, $timeout, stateManager, modalService, dontTouch
             $scope.visible = true;
             stateManager.pushState([$scope.initial_state,"modal"]);
 
+            console.log($scope.overlayColor);
+
             // Turn on background overlay
-            dontTouchService.on(block, $scope.animate, function() {
+            dontTouchService.on({
+                block: block,
+                animate: $scope.animate,
+                
+                spinner: $scope.spinner,
+                spinnerColor: $scope.spinnerColor,
+                color: $scope.overlayColor,
+                opacity: $scope.overlayOpacity
+            
+            }, function() {
                 $scope.hide();
             });
         }
@@ -386,7 +544,6 @@ var ModalCtrl = function($scope, $timeout, stateManager, modalService, dontTouch
         }
     };
 
-
     modalService.init($scope);
 
     stateManager.registerInitialiser(function (pathComponents) {
@@ -401,7 +558,7 @@ var ModalCtrl = function($scope, $timeout, stateManager, modalService, dontTouch
 
 
 
-var modalService = function($timeout) {
+var modalService = function() {
 
     var m = {};
 
@@ -465,7 +622,8 @@ var modalService = function($timeout) {
 
 
 function registerModal(module) {
-    module.factory('modalService', ['$timeout', modalService]);
+    module.factory('modalService', modalService);
     module.controller('ModalCtrl', ['$scope', '$timeout', 'stateManager', 'modalService', 'dontTouchService', ModalCtrl]);
-    module.directive('modal', modalDirective);    
+    module.directive('modal', ['$timeout', 'dontTouchService', modalDirective]); 
+    module.directive('imageLoad', imageLoadDirective);  
 }

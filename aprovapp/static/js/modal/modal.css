@@ -1,0 +1,15 @@
+DIV#modal-box.fullscreen
+{
+	width: 100%;
+	margin-left: 0;
+	margin-right: 0;
+	left: 0;
+	margin-top: 0;
+	top: 0;
+}
+
+.spinner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+}

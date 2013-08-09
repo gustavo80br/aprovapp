@@ -8,12 +8,11 @@ var app = angular
       }
   });
 
-
   registerDontTouch(app);
   registerModal(app);
 
   app.controller('MainAreaCtrl',
-    ['$scope', 'modalService', 'dontTouchService', function($scope, modal, dontTouch) {
+    ['$scope', '$timeout', 'modalService', 'dontTouchService', function($scope, $timeout, modal, dontTouch) {
       
       $scope.modal_test_msg = 'Alert box';
       $scope.dont_touch_test_msg = 'Click to Test DONT TOUCH';
@@ -123,14 +122,22 @@ var app = angular
 
     $scope.questionReference = function(num) {
       
+      if(num) var i = "http://192.168.0.80:5000/static/img/ref" + num + ".jpg";
+      else var i = "http://placehold.it/5000x150";
+
       modal.alert({
         
         block: false,
         title: "",
         lead: "",
         txt: "",
-        confirm_caption: "OK",
-        img: "http://192.168.0.80:5000/static/img/ref" + num + ".jpg"
+        confirm_caption: "CLOSE",
+        img: i,
+        size: "fullscreen", 
+        spinner: true,
+        spinnerColor: 'black',
+        overlayColor: 'white',
+        overlayOpacity: 1
       
       });
     };
@@ -142,7 +149,33 @@ var app = angular
     }
 
     $scope.openDontTouchBlock = function() {
-      dontTouch.on(true);
+      dontTouch.on({
+        block: true
+      });
+    }
+
+    $scope.openDontTouchSpinner = function() {
+      dontTouch.on({
+        spinner: true,
+        spinnerColor: 'green'
+      });
+    }
+
+    $scope.openDontTouchSpinnerTimed = function() {
+      
+      dontTouch.on({
+        spinner: true,
+        spinnerColor: 'green'
+      });
+
+      $timeout(function() {
+        dontTouch.toggle_spinner();
+      },2000);
+
+      $timeout(function() {
+        dontTouch.toggle_spinner();
+      },4000);
+
     }
 
   }]);

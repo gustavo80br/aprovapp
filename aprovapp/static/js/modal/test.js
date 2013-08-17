@@ -1,28 +1,17 @@
-var app = angular
-  .module('aprovapp', ["stateManager"])
-  .config(function($locationProvider) {
-      if(Modernizr.history) { // use html5 if available
-        $locationProvider.html5Mode(true);
-      } else {
-        $locationProvider.html5Mode(false).hashPrefix('!');
-      }
-  });
+var app = angular.module('aprovapp', ['modalModule'])
 
-  registerDontTouch(app);
-  registerModal(app);
 
   app.controller('MainAreaCtrl',
-    ['$scope', '$timeout', 'modalService', 'dontTouchService', function($scope, $timeout, modal, dontTouch) {
-      
+    ['$scope', '$timeout', 'modalService', 'dontTouchService', function($scope, $timeout, modalService, dontTouchService) {
+
       $scope.modal_test_msg = 'Alert box';
       $scope.dont_touch_test_msg = 'Click to Test DONT TOUCH';
 
       $scope.test = "TESTING";
       $scope.x = 0;
 
-      
       $scope.alert = function() {
-        modal.alert({
+        modalService.alert({
           block: false,
           title: "Livre",
           lead: "Basta clicar ou apertar ESC",
@@ -41,7 +30,7 @@ var app = angular
       };
 
       $scope.alertBlock = function() {
-       modal.alert({
+       modalService.alert({
         block: true,
         title: "Livre",
         lead: "Somente o ESC ou o clique em algum botão",
@@ -61,7 +50,7 @@ var app = angular
      };
 
      $scope.confirm = function() {
-      modal.confirm({
+      modalService.confirm({
         block: false,
         title: "Livre",
         lead: "Somente o ESC ou o clique em algum botão",
@@ -81,7 +70,7 @@ var app = angular
     };
 
     $scope.confirmWithAction = function() {
-      modal.confirm({
+      modalService.confirm({
         block: false,
         title: "Livre",
         lead: "Somente o ESC ou o clique em algum botão",
@@ -102,7 +91,7 @@ var app = angular
         onAction: function(scope) {
           $scope.x += 1;
           $scope.test = "ACTION";
-          modal.alert({
+          modalService.alert({
             title : 'OUTRO ALERTA!',
             lead : 'Esse é bom!'
           });
@@ -113,7 +102,7 @@ var app = angular
 
     
     $scope.simple = function() {
-      modal.confirm({
+      modalService.confirm({
         title: "SIMPLES",
         animate: false
       });
@@ -125,7 +114,7 @@ var app = angular
       if(num) var i = "http://192.168.0.80:5000/static/img/ref" + num + ".jpg";
       else var i = "http://placehold.it/5000x150";
 
-      modal.alert({
+      modalService.alert({
         
         block: false,
         title: "",
@@ -145,17 +134,17 @@ var app = angular
 
 
     $scope.openDontTouch = function() {
-      dontTouch.on();
+      dontTouchService.on();
     }
 
     $scope.openDontTouchBlock = function() {
-      dontTouch.on({
+      dontTouchService.on({
         block: true
       });
     }
 
     $scope.openDontTouchSpinner = function() {
-      dontTouch.on({
+      dontTouchService.on({
         spinner: true,
         spinnerColor: 'green'
       });
@@ -163,17 +152,17 @@ var app = angular
 
     $scope.openDontTouchSpinnerTimed = function() {
       
-      dontTouch.on({
+      dontTouchService.on({
         spinner: true,
         spinnerColor: 'green'
       });
 
       $timeout(function() {
-        dontTouch.toggle_spinner();
+        dontTouchService.toggle_spinner();
       },2000);
 
       $timeout(function() {
-        dontTouch.toggle_spinner();
+        dontTouchService.toggle_spinner();
       },4000);
 
     }

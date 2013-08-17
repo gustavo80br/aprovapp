@@ -1,10 +1,10 @@
+modalModule.directive('dontTouch', function() {
 
-var dontTouchDirective = function() {
     return {
         
         replace: true,
         
-        template: '<div id="overlay" ng-click="onClick()" ng-controller="dontTouchCtrl">',
+        template: '<div id="overlay" ng-click="onClick()" ng-controller="dontTouchCtrl"><div id="overlay-spinner"></div>',
         
         link: function(scope, element, attributes) {
 
@@ -19,10 +19,7 @@ var dontTouchDirective = function() {
 
             $(window).bind('resize', function() {
                 element.css('height', getDocHeight());
-                console.log('Resizee');
             });
-
-            alert('nicuri');
 
             css = {
                 'display': 'none',
@@ -65,21 +62,35 @@ var dontTouchDirective = function() {
             };
 
             var spinner = new Spinner(opts).spin();
+
+            /*console.log('chupeta na manteiga');
+            $(spinner.el).css({
+                top: document.documentElement.clientHeight/2,
+                left: document.documentElement.clientWidth/2
+            });*/
+
             element.append(spinner.el);
 
-            scope.$watch('toggle_spinner',
-                function(toggle_spinner) {
+            var toggleSpinner = function(toggler) {
+                if(!toggler) {
+                    console.log('toggle_spinner FALSE');
+                    spinner.stop();
+                } else {
+                    opts.color = scope.spinnerColor;
+                    spinner = new Spinner(opts).spin();
+                    
+                    console.log('toggle_spinner TRUE');
+                    $(spinner.el).css({
+                        position: 'absolute',
+                        top: document.documentElement.clientHeight/2,
+                        left: document.documentElement.clientWidth/2
+                    });
 
-                    if(!toggle_spinner) {
-                        spinner.stop();
-                    } else {
-                        opts.color = scope.spinnerColor;
-                        spinner = new Spinner(opts).spin();
-                        element.append(spinner.el);
-                    }
-
+                    element.append(spinner.el);
                 }
-            );
+            }
+
+            scope.$watch('toggle_spinner', toggleSpinner);
 
             scope.$watch(
                 'toggle',
@@ -97,6 +108,9 @@ var dontTouchDirective = function() {
                         };
 
                         scope.toggle_spinner = scope.spinner;
+                        /*if(scope.spinner) {
+                            toggleSpinner(scope.spinner);
+                        }*/
 
                     } else {
 
@@ -105,6 +119,7 @@ var dontTouchDirective = function() {
                             'opacity': 0
                         };
                         spinner.stop();
+                        scope.toggle_spinner = false;
                     }
 
                     if(typeof(element.animate) === 'function'  && scope.animate) {
@@ -136,139 +151,10 @@ var dontTouchDirective = function() {
 
         }
     }
-}
+})
 
 
-
-
-var DontTouchCtrl = function($scope, dontTouchService, modalService) {
-
-    $scope.defaults = {
-        toggle : false,
-        block : false,
-        animate : true,
-        spinner : false,
-        color: 'black',
-        spinnerColor: 'white',
-        opacity: 0.8,
-        resize_trigger: 0
-    }
-
-    $scope.loadProperies = function(prop) {
-        for(p in prop) $scope[p] = prop[p];
-    }
-
-    $scope.loadProperies($scope.defaults);
-
-    $scope.on = function(prop) {
-        $scope.loadProperies(prop);
-        $scope.toggle = true;
-    }
-
-    $scope.off = function() {
-        $scope.toggle = false;
-        $scope.block = false;
-        $scope.loadProperies($scope.defaults);
-    }
-
-    $scope.onClick = function() {
-        if(!$scope.block) {
-            $scope.off();
-            modalService.dismiss();
-        }
-    }
-
-    dontTouchService.init($scope);
-}
-
-
-
-
-var dontTouchService = function($timeout) {
-
-    var dt = {}
-
-    dt.off_callback = function() {};
-
-    dt.init = function(scope) {
-        this.scope = scope;
-    }
-
-    dt.on = function(prop, off_callback) {
-        this.scope.on(prop);
-        if(typeof(off_callback) === 'function') {
-            this.off_calback = off_callback;
-        }
-    }
-
-    dt.off = function() {
-        this.scope.off();
-        if(typeof(this.off_calback) === 'function') {
-            this.off_callback(this);
-        }
-    }
-
-    dt.toggle_spinner = function() {
-        if(this.scope.spinner) this.scope.toggle_spinner = !this.scope.toggle_spinner;
-    }
-
-    dt.resize = function() {
-        this.scope.resize_trigger++;
-    }
-
-    return dt;
-
-}
-
-
-function registerDontTouch(module) {
-    module.factory('dontTouchService', ['$timeout', dontTouchService]);
-    module.controller('dontTouchCtrl', ['$scope', 'dontTouchService', 'modalService', DontTouchCtrl]);
-    module.directive('dontTouch', dontTouchDirective);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var modalDirective = function($timeout, dontTouchService) {
+modalModule.directive('modal', ['$timeout', 'dontTouchService', function($timeout, dontTouchService) {
     
     return {
         replace: true,
@@ -334,7 +220,7 @@ var modalDirective = function($timeout, dontTouchService) {
                         var status_changed = true;                 
                     
                     } else if(!is_visible && element.data('visible')) {
-                        console.log('I HIDE');
+
                         //hide 
 
                         element.data('visible', false);
@@ -392,10 +278,10 @@ var modalDirective = function($timeout, dontTouchService) {
             );
         }
     }
-}
+}])
 
 
-var imageLoadDirective = function() {
+modalModule.directive('imageLoad', function() {  
     return {
         link: function(scope, element, attrs) {   
 
@@ -407,223 +293,4 @@ var imageLoadDirective = function() {
             });
         }
     }
-}
-
-
-var ModalCtrl = function($scope, $timeout, stateManager, modalService, dontTouchService) {
-
-    $scope.title = '';
-    $scope.lead = '';
-    $scope.txt = '';
-    
-    $scope.visible = false;
-    $scope.animate = true;
-
-    $scope.confirm_btn = false;
-    $scope.dismiss_btn = false;
-    $scope.action_btn = false;
-
-    $scope.confirm_caption = 'OK';
-    $scope.dismiss_caption = 'NO';
-    $scope.action_caption = 'ACTION';
-
-    $scope.img = "";
-    $scope.img_loaded = false;
-
-    $scope.size = "";
-
-    $scope.onConfirm = function() { return true; }
-    $scope.onDismiss = function() { return true; }
-    $scope.onAction = function() { return true; }
-
-    $scope.default_top = 0;
-
-    $scope.defaults = {
-        animate : true,
-        confirm_caption : 'OK',
-        dismiss_caption : 'CANCEL',
-        action_caption : 'ACTION',
-        title : 'Modal Box',
-        lead : 'The great Modal service',
-        txt : 'A true friend in all situations!',
-        size: '',
-        img: '',
-        img_loaded: false,
-        spinner: false,
-        spinnerColor: 'white',
-        overlayColor: 'black',
-        overlayOpacity: 0.8,
-        onConfirm : function() { return true; },
-        onDismiss : function() { return true; },
-        onAction : function() { return true; }
-    }
-
-    $scope.loadDefaults = function() {
-        for(p in $scope.defaults) {
-            if(p == 'onConfirm' || p == 'onDismiss' || p == 'onAction' ) {
-                if(typeof($scope.defaults[p]) === 'function') {
-                    $scope[p] = $scope.defaults[p];
-                }
-            } else {
-                $scope[p] = $scope.defaults[p];
-            }
-        }
-    }
-
-    $scope.confirmAction =  function() {
-        response = $scope.onConfirm($scope);
-        if(response) $scope.hide();
-    }
-
-    $scope.dismissAction = function () {
-        response = $scope.onDismiss($scope);
-        if(response) $scope.hide();
-    }
-
-    
-    $scope.customAction = function () {
-        response = $scope.onAction($scope);
-        if(response) $scope.hide();
-    }
-
-
-    $scope.showButtons = function() {
-        if($scope.confirm_btn ||  $scope.dismiss_btn  || $scope.action_btn) return true;
-        else return false;
-    };
-
-
-    $scope.hideButtons = function() {
-        $scope.confirm_btn = false;
-        $scope.dismiss_btn = false;
-        $scope.action_btn = false;
-    }
-
-
-    $scope.show = function(block) {
-        if(!$scope.visible) {
-            
-            // Set modal open state
-            $scope.visible = true;
-            stateManager.pushState([$scope.initial_state,"modal"]);
-
-            console.log($scope.overlayColor);
-
-            // Turn on background overlay
-            dontTouchService.on({
-                block: block,
-                animate: $scope.animate,
-                
-                spinner: $scope.spinner,
-                spinnerColor: $scope.spinnerColor,
-                color: $scope.overlayColor,
-                opacity: $scope.overlayOpacity
-            
-            }, function() {
-                $scope.hide();
-            });
-        }
-    };
-
-
-    $scope.hide = function() {
-        if($scope.visible) {
-            
-            // Get out of open modal state
-            $scope.visible = false;
-            stateManager.replaceState([$scope.initial_state]);
-
-            // Turn off the background overlay
-            dontTouchService.off();
-
-            // Reset modal contents, timeout wait for animation end
-            $timeout(function() {
-                $scope.loadDefaults();
-            }, 250);
-        
-        }
-    };
-
-    modalService.init($scope);
-
-    stateManager.registerInitialiser(function (pathComponents) {
-        $scope.initial_state = pathComponents[0];
-        if(!(pathComponents[1] == 'modal')) {
-            $scope.hide();
-        }
-    })($scope);
-
-}
-
-
-
-
-var modalService = function() {
-
-    var m = {};
-
-    m.hide_before_show = false;
-
-    m.init = function(scope) {
-        this.scope = scope;
-    }
-
-    m.loadProperties = function(prop) {
-        for(p in prop) {
-            if(p == 'onConfirm' || p == 'onDismiss' || p == 'onAction' ) {
-                if(typeof(prop[p]) === 'function') {
-                    this.scope[p] = prop[p];
-                }
-            } else {
-                this.scope[p] = prop[p];
-            }
-        }
-    }
-
-    m.alert = function(prop) {
-
-        if(this.scope.visible) {
-            this.scope.hide();
-            $timeout(function() {
-                m.alert(prop);
-            }, 250);
-        } else {
-            this.scope.hideButtons();
-            this.loadProperties(prop);
-            this.scope.confirm_btn = true;
-            this.scope.show(prop.block);
-        }
-
-    }
-
-    m.confirm = function(prop) {
-
-        // For alert, no need buttons
-
-        // Show the box
-        if(this.scope.visible) {
-            this.scope.hide();
-        } else {
-            this.scope.hideButtons();
-            this.loadProperties(prop);
-            this.scope.confirm_btn = true;
-            this.scope.dismiss_btn = true;
-            this.scope.show(prop.block);
-        }
-
-    }
-
-    m.dismiss = function() {
-        this.scope.dismissAction();
-    }
-
-    return m;
-}
-
-
-function registerModal(module) {
-    module.factory('modalService', modalService);
-    module.controller('ModalCtrl', ['$scope', '$timeout', 'stateManager', 'modalService', 'dontTouchService', ModalCtrl]);
-    module.directive('modal', ['$timeout', 'dontTouchService', modalDirective]); 
-    module.directive('imageLoad', imageLoadDirective);  
-}
+})

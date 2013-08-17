@@ -8,14 +8,46 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
 
+  <title>QUESTION TEST</title>
+  
+  <!-- FOUNDATION -->
   <link rel="stylesheet" href="/static/almost-flat-ui/stylesheets/normalize.css" />
   <link rel="stylesheet" href="/static/almost-flat-ui/stylesheets/app.css" />
   <link rel="stylesheet" href="/static/foundation/foundation_icons_general/stylesheets/general_foundicons.css" />
+  <script>
+  document.write('<script src=' +
+    ('__proto__' in {} ? '/static/foundation/js/vendor/zepto' : '/static/foundation/js/vendor/jquery') +
+    '.js><\/script>')
+  </script>
+  <script src="/static/foundation/js/vendor/custom.modernizr.js"></script>
 
-  <link rel="stylesheet" href="/static/js/modal/modal.css" />
-  <link href="/static/js/question/question.css" rel="stylesheet" media="screen">
+  <!-- ANGULARJS -->
+  <script src="/static/js/app/vendor/angular.min.js" type="text/javascript"></script>
+  
+  <!-- 3rd PART LIBS -->
+  <script src="/static/js/spin.min.js" type="text/javascript"></script>
+  <script src="/static/js/stateManager.js" type="text/javascript"></script>
+  
+  <!-- MODAL -->
+  <link rel="stylesheet" href="/static/js/modal/style.css" />
+  <script src="/static/js/modal/module.js" type="text/javascript"></script>
+  <script src="/static/js/modal/controllers.js" type="text/javascript"></script>
+  <script src="/static/js/modal/directives.js" type="text/javascript"></script>
+  <script src="/static/js/modal/services.js" type="text/javascript"></script>
 
-  <title>MODAL TEST</title>
+  <!-- QUESTION -->
+  <link rel="stylesheet" href="/static/js/question/style.css" />
+  <script src="/static/js/question/module.js" type="text/javascript"></script>
+  <script src="/static/js/question/controllers.js" type="text/javascript"></script>
+  <script src="/static/js/question/directives.js" type="text/javascript"></script>
+
+  <script>
+
+    var app = angular.module('aprovapp', ['questionModule']);
+
+    
+
+  </script>
 
 </head>
 
@@ -87,119 +119,12 @@
   
 
 
+<div class="row" id="test">
 
-  <!-- Question Controller -->
-  <div class="row" ng-controller="QuestionCtrl">
+    <div question-template></div>
 
-    <!-- Question -->
-    <div class="small-12 large-9 columns">
-      <div class="panel radius">
-        <h4 class="subheader">{{ enunciation }}</h4>  
-        <a href="#" class="button secondary" ng-click="showReference()">Referência</a>
-        <hr/>
-        <dl question>
-          <dd ng-repeat="choice in choices" highlight="{{ $index }}" ng-click="select($index)" style="cursor:pointer"><span><b>{{ choiceLetter($index) }})</b> {{ choice.text }}</span></dd>
-        </dl>
-      </div>
-    </div>
+</div>
 
-    <!-- Side Question Content -->
-    <div class="small-12 large-3 columns">
-
-      <!-- Pre-answer content -->
-      <div ng-show="pre_answer_area">
-
-        <!-- Button text -->
-        <a href="#" class="large button expand radius" ng-click="submitAnswer()" ng-class="answer_button_disabled" >
-          {{ answer_button_text }}
-        </a>
-
-        <!-- Auxiliar text 1 -->
-        <div class="alert-box secondary hide-for-small">
-          <p>{{ help_text_1 }}</p>
-        </div>
-
-        <!-- Kick Mode Button -->
-        <a href=""  class="button expand radius" ng-click="kickMode()" ng-class="{true:'alert', false:'alert-dark'}[kick_mode]">
-          MODO CHUTE
-        </a>
-
-        <!-- Auxiliar Text 2 -->
-        <div class="alert-box secondary hide-for-small">
-          <p>Em caso de pânico, entre em MODO CHUTE e seja feliz!</p>
-        </div>
-
-        <!-- Answer Mode Buttons
-        <ul class="small-block-grid-2">
-          <li><a href="#" class="button primary small" ng-click="changeMode(click_right)" ng-class="click_right">Marcar<br/>Certas</a></li>
-          <li><a href="#" class="button primary small" ng-click="changeMode(click_wrong)" ng-class="click_wrong">Marcar<br/>Erradas</a></li>
-        </ul> -->
-
-        <!-- Answer Mode Buttons -->
-        <a href="#" class="button primary small" ng-click="changeMode(click_right)" ng-class="click_right" style="width:50%">Marcar</br>Certas</a><a href="#" class="button primary small" ng-click="changeMode(click_wrong)" ng-class="click_wrong" style="width:50%">Marcar</br>Erradas</a>
-
-        <!-- Reset Button -->
-        <a href="" class="button secondary expand radius" ng-click="reset()" >
-          Limpar
-        </a>
-
-      </div>
-
-      <!-- Sending answer content -->
-      <div ng-show="answering_area">
-        <p> ANSWERING </p>
-      </div>
-
-      <div ng-show="right_answer_area" >
-        <a href="#" ng-click="restart()" class="large button expand success radius"><i class="general foundicon-checkmark"></i> RESPOSTA CERTA!</a>
-      </div>
-
-      <div ng-show="doubt_answer_area">
-        <a href="#" ng-click="restart()" class="large button expand primary radius"><i class="general foundicon-idea"></i> FOI POR POUCO! {{ showScore() }}%</a>     
-      </div>
-
-      <div ng-show="wrong_answer_area">
-        <a href="#" ng-click="restart()" class="large button expand alert radius"><i class="general foundicon-error"></i> RESPOSTA ERRADA!</a>
-      </div>
-
-
-    </div>
-
-
-  </div>
-
-
-  <script>
-  document.write('<script src=' +
-    ('__proto__' in {} ? '/static/foundation/js/vendor/zepto' : '/static/foundation/js/vendor/jquery') +
-    '.js><\/script>')
-  </script>
-
-  <script src="/static/foundation/js/vendor/custom.modernizr.js"></script>
-  <script src="/static/js/app/vendor/angular.min.js" type="text/javascript"></script>
-  <script src="/static/js/spin.min.js" type="text/javascript"></script>
-  <script src="/static/js/stateManager.js" type="text/javascript"></script>
-  <script src="/static/js/modal/modal.js" type="text/javascript"></script>
-  <script src="/static/js/question/question.js" type="text/javascript"></script>
-
-
-  <script>
-
-  var app = angular
-  .module('aprovapp', ["stateManager"])
-  .config(function($locationProvider) {
-        if(Modernizr.history) { // use html5 if available
-          $locationProvider.html5Mode(true);
-        } else {
-          $locationProvider.html5Mode(false).hashPrefix('!');
-        }
-      });
-
-  registerDontTouch(app);
-  registerModal(app);
-  registerQuestion(app);
-
-  </script>
 
 </body>
 </html>

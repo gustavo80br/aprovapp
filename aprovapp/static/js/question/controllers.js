@@ -1,252 +1,6 @@
-
-
-
-var fisherYates = function( myArray ) {
-    var i = myArray.length, j, temp;
-    if ( i === 0 ) return false;
-    while ( --i ) {
-        j = Math.floor( Math.random() * ( i + 1 ) );
-        temp = myArray[i];
-        myArray[i] = myArray[j]; 
-        myArray[j] = temp;
-    }
-}
-
-
-
-
-var highlightDirective = function($timeout) {
-    return {
-        link: function(scope, element, attributes) {
-
-            // Instantiate basic variables
-            var el = $(element[0]);
-            var id = attributes.highlight;
-
-            //CSS
-            var padding = 0.4;
-            var side_padding = 2;
-
-            var normal_text_color = '#333';
-            var wrong_text_color = '#999';
-            var sure_background = '#CFC';
-            var doubt_background = '#CDE5F4';
-
-
-            // Store states CSS
-            el.data('css-unchecked', {
-                padding : padding + 'em',
-                paddingRight: side_padding + 'em',
-                background: 'transparent',
-                border: '1px solid transparent',
-                color: normal_text_color,
-                textDecoration: 'none'
-            });
-
-
-            el.data('css-hover', {
-                background: '#FFF'
-            });
-
-
-            el.data('css-hover-out', {
-                background: 'transparent'
-            });
-
-
-            el.data('css-sure', {
-                paddingRight: padding + 'em',
-                paddingLeft: side_padding + 'em',
-                background: sure_background,
-                color: normal_text_color,
-                textDecoration: 'none'
-            });
-
-
-            el.data('css-doubt', {
-                paddingRight: padding + 'em',
-                paddingLeft: side_padding + 'em',
-                background: doubt_background,
-                color: normal_text_color,
-                textDecoration: 'none'
-            });
-
-
-            el.data('css-wrong', {
-                textDecoration: 'line-through',
-                color: wrong_text_color,
-                background: 'transparent'
-            });
-
-            el.data('css-error', {
-                paddingRight: padding + 'em',
-                paddingLeft: side_padding + 'em',
-                background: "#FADEDA",
-                color: normal_text_color,
-                textDecoration: 'none'
-            });
-
-            el.data('css-not-right', {
-                textDecoration: 'none',
-                color: normal_text_color,
-                background: 'transparent'
-            });
-
-
-            // Instantiate state variables
-            el.data('mouse-in', false);
-            el.data('selected', false);
-            el.data('sure', false);
-            el.data('doubt', false);
-            el.data('wrong', false);
-
-            // Setup unchecked css
-            el.css(el.data('css-unchecked'));
-
-
-            // Auxiliar for animation
-            var animateOrDie = function(status) {
-                var css_end = 'css-' + status;
-                if(scope.animate && typeof(el.animate) == 'function' && Modernizr.cssanimations) {
-                    var time = 'fast';
-                    el.animate(el.data(css_end), time,'swing');
-                } else {
-                    el.css(el.data(css_end));
-                }
-            }
-
-            // Bind mouseenter for hover effect
-            element.bind('mouseenter', function() {
-                if(!Modernizr.touch) {
-                    scope.$apply(function() {
-                        el.data('mouse-in', true);
-                        if(el.data('wrong')) {
-                            css = el.data('css-hover');
-                            css.textDecoration = 'none';
-                            el.css(css);
-                        }
-                    });
-                }
-            });
-
-
-
-            // Bind mouseleave for hover effect
-            element.bind('mouseleave', function() {
-                if(!Modernizr.touch) {
-                    scope.$apply(function() {
-                        el.data('mouse-in', false);
-                        if(el.data('wrong')) {
-                            el.css(el.data('css-wrong'));
-                        }
-                    });
-                }
-            });     
-
-
-            // Evento for the ESC key to reset question
-            $(document).bind('keyup', function(e) {
-                if(e.keyCode == 27 && el.data('selected')) 
-                    scope.$apply(scope.reset());
-            });
-
-
-            scope.$watch('selected', function() {
-                    
-                if(scope.answered) return;
-
-                if(scope.choices[id].selected) {
-
-                    if(scope.selected > 1) {
-                        var typ = 'doubt';
-                        var no_typ = 'sure';
-                    } else {
-                        var typ = 'sure';
-                        var no_typ = 'doubt';
-                    }
-
-                    if(!el.data(typ)) animateOrDie(typ);
-                    el.data('selected', true);
-                    el.data(typ, true);
-                    el.data(no_typ, false);
-                }
-                else if(!el.data('wrong')) {
-                    el.data('selected', false);
-                    animateOrDie('unchecked');
-                    el.data('doubt', false);
-                    el.data('sure', false);
-                }
-            });
-
-
-            scope.$watch('wrong_selected', function() {
-                if(scope.choices[id].wrong) {
-                    if(!el.data('wrong')) animateOrDie('wrong');
-                    el.data('wrong', true);
-                }
-                else {
-                    el.data('wrong', false);
-                    if(!el.data('selected')) animateOrDie('unchecked'); 
-                }
-            });
-
-            scope.$watch('answered', function() {
-                
-                if(scope.answered) {
-
-                    if(scope.right_answer == id) {
-                        animateOrDie('sure');
-                    } else if(scope.answer[id]) {
-                        animateOrDie('error');   
-                    } else {
-                        animateOrDie('not-right');   
-                    }
-
-                }
-
-            });
-
-            scope.$watch('kick_mode', function() {
-
-                if(scope.kick_mode) {
-                    animateOrDie('error');
-                } else {
-                    animateOrDie('unchecked');
-                }
-
-            });
-
-
-        }
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var QuestionCtrl = function($scope, $timeout, modalService) {
+questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', function($scope, $timeout, modalService) {
     
+    $scope.id = 0;
     $scope.enunciation = 'Com fundamento na Lei no 6.745, de 28 de dezembro de 1985, que estabelece o Estatuto dos Servidores Públicos Civis do Estado de Santa Catarina, assinale a alternativa correta.';
     $scope.choices = [
         { id: 123, text: 'A readaptação de funcionário poderá acarretar decesso ou aumento de remuneração.', selected: false, wrong: false},
@@ -358,6 +112,7 @@ var QuestionCtrl = function($scope, $timeout, modalService) {
         }
     }
 
+
     $scope.choiceLetter = function(code) {
         code = parseInt(code);
         code = code + 97;
@@ -402,25 +157,28 @@ var QuestionCtrl = function($scope, $timeout, modalService) {
             if($scope.choices[id].wrong) $scope.removeWrong(id);
             else $scope.addWrong(id);
         }
+
     }
 
     $scope.addChoice = function(id) {
+        console.log('ADD CHOICE -> ' + id);
         if(!$scope.choices[id].selected) {
             if($scope.answer_mode == 1) {
                 if($scope.selected < $scope.max_selection) {
-                    $scope.selected += 1;
                     $scope.choices[id].selected = true;
+                    $scope.selected += 1;
                 }   
             } else {
                 if(!$scope.choices[id].wrong) {
-                    $scope.selected += 1;
                     $scope.choices[id].selected = true;
+                    $scope.selected += 1;
                 }
             }
         }
     }
 
     $scope.removeChoice = function(id) {
+        console.log('REMOVE CHOICE -> ' + id);
         if($scope.choices[id].selected) {
             $scope.selected -= 1;
             $scope.choices[id].selected = false;
@@ -499,7 +257,8 @@ var QuestionCtrl = function($scope, $timeout, modalService) {
     });
 
 
-    $scope.$watch('wrong_selected', function() {
+    $scope.$watch('wrong_selected', function(newValue, oldValue) {
+        if(newValue === oldValue) return;
         var fn = ($scope.wrong_selected < $scope.wrong_trigger) ? $scope.removeChoice : $scope.addChoice;
         for(c in $scope.choices) {
             fn(c);
@@ -554,7 +313,7 @@ var QuestionCtrl = function($scope, $timeout, modalService) {
                 lead: "",
                 txt: "",
                 confirm_caption: "CLOSE",
-                img: 'http://placehold.it/1024x2048',
+                img: $scope.reference,
                 size: "fullscreen", 
                 spinner: true,
                 spinnerColor: 'black',
@@ -570,25 +329,88 @@ var QuestionCtrl = function($scope, $timeout, modalService) {
                 lead: "",
                 txt: "",
                 confirm_caption: "CLOSE",
-                img: 'http://placehold.it/1024x2048',
+                img: $scope.reference,
                 spinner: true,
             });
 
         }
     }
 
-}
+    $scope.loadJSON = function(json) {
+
+        $scope.choices = [];
+
+        for(var prop in json) {
+            $scope[prop] = json[prop];
+        }
+
+        var has_answer = false;
+        if(json.answer.length) {
+            has_answer = true;
+            var tmp_answer = {};
+            for(var a in json.answer) {
+                tmp_answer[json.answer[a]] = true;
+            }
+            json.answer = tmp_answer;
+        }
+        
+
+        if(json.shuffle) {
+            fisherYates($scope.choices);
+        }
+
+        $timeout(function() {
+            if(has_answer) {
+                for(var i in $scope.choices) {
+                
+                    if(($scope.choices[i].id in json.answer)) {
+                        if($scope.answer_mode) $scope.select(i);
+                    } else {
+                        if(!$scope.answer_mode) $scope.select(i);
+                    }
+                
+                }
+            }
+            //$scope.submitAnswer();
+
+        },1);
+
+        //$scope.submitAnswer();
+
+    }
 
 
+    /*$scope.loadJSON({
+      "id": 9871,
+      "enunciation": "Enunctiation text enunciation text",
+      "choices": [
+        {
+          "id": 123,
+          "text": "Option 1"
+        },
+        {
+          "id": 456,
+          "text": "Option 2"
+        },
+        {
+          "id": 789,
+          "text": "Option 3"
+        },
+        {
+          "id": 901,
+          "text": "Option 4"
+        },
+        {
+          "id": 234,
+          "text": "Option 5",
+        }
+      ],
+      "reference": "http://placehold.it/1024x2048",
+      "answer_mode": 1,
+      "answer": [123, 456, 789],
+      "right_answer": 456,
+      "shuffle": true
+    });*/
 
 
-
-
-
-
-
-
-function registerQuestion(module) {
-    module.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', QuestionCtrl]);
-    module.directive('highlight', highlightDirective);
-}
+}]);

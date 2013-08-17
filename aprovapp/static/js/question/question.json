@@ -1,0 +1,32 @@
+{
+  "id": 9871,
+  "enunciation": "Enunctiation text enunciation text",
+  "choices": [
+    {
+      "id": 123,
+      "text": "Option 1"
+    },
+    {
+      "id": 456,
+      "text": "Option 1"
+    },
+    {
+      "id": 789,
+      "text": "Option 1"
+    },
+    {
+      "id": 101,
+      "text": "Option 1"
+    },
+    {
+      "id": 1314,
+      "text": "Option 1"
+    }
+  ],
+  "reference": "http://placehold.it/1024x2048",
+  "answer_mode": true,
+  "ansewered": true,
+  "answers": [101, 1314, 789],
+  "right_answer": 456
+}
+

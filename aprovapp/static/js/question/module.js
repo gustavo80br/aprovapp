@@ -1,4 +1,4 @@
-var questionModule = angular.module('questionModule', ['modalModule']);
+var questionModule = angular.module('questionModule', ['modalModule','ngSanitize']);
 
 var fisherYates = function( myArray ) {
     var i = myArray.length, j, temp;

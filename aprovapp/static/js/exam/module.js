@@ -1,0 +1,1 @@
+var examModule = angular.module('examModule', ['ngSanitize']);

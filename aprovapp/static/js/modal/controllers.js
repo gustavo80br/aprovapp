@@ -10,7 +10,6 @@ modalModule.controller('dontTouchCtrl', ['$scope', 'dontTouchService', 'modalSer
         color: 'black',
         spinnerColor: 'white',
         opacity: 0.8,
-        resize_trigger: 0
     }
 
     $scope.loadProperies = function(prop) {
@@ -157,6 +156,10 @@ modalModule.controller('ModalCtrl', ['$scope', '$timeout', 'stateManager', 'moda
             }, function() {
                 $scope.hide();
             });
+
+            if(angular.isDefined($scope.monitor_scroll)) {
+                $scope.monitor_scroll = false;
+            }
         }
     };
 
@@ -176,6 +179,10 @@ modalModule.controller('ModalCtrl', ['$scope', '$timeout', 'stateManager', 'moda
                 $scope.loadDefaults();
             }, 250);
         
+            if(angular.isDefined($scope.monitor_scroll)) {
+                $scope.monitor_scroll = true;
+            }
+
         }
     };
 

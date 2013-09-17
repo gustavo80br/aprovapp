@@ -1,18 +1,29 @@
-questionModule.directive('questionTemplate', function() {
+questionModule.directive('questionTemplate', ['$parse', function($parse) {
     return {
         templateUrl: '/static/js/question/template.html',
-        replace: true
+        replace: true,
+        scope: '&',
+        link: function($scope, $element, $attributes) {
+            $attributes.$observe('id', function(newValue) {
+                console.log(newValue);
+                if(!angular.isDefined(newValue)) return;
+                newValue = $parse(newValue.replace('{{','').replace('}}',''))($scope); 
+                console.log(newValue);
+                $scope.number = newValue;
+                $scope.loadJSON($scope.data_set[newValue]);
+            });
+        }
     }
-});
+}]);
 
-
-questionModule.directive('highlight', ['$timeout', function($timeout) {
+questionModule.directive('choice', ['$timeout', function($timeout) {
     return {
         link: function(scope, element, attributes) {
 
             // Instantiate basic variables
             var el = $(element[0]);
-            var id = attributes.highlight;
+            var index = attributes.index;
+            var id = attributes.id;
 
             //CSS
             var padding = 0.4;
@@ -20,8 +31,8 @@ questionModule.directive('highlight', ['$timeout', function($timeout) {
 
             var normal_text_color = '#333';
             var wrong_text_color = '#999';
-            var sure_background = '#CFC';
-            var doubt_background = '#CDE5F4';
+            var sure_background = '#B8FFB8';
+            var doubt_background = '#E6FFE6';
 
 
             // Store states CSS
@@ -72,7 +83,7 @@ questionModule.directive('highlight', ['$timeout', function($timeout) {
             el.data('css-error', {
                 paddingRight: padding + 'em',
                 paddingLeft: side_padding + 'em',
-                background: "#FADEDA",
+                background: "#E6E6E6",
                 color: normal_text_color,
                 textDecoration: 'none'
             });
@@ -146,7 +157,7 @@ questionModule.directive('highlight', ['$timeout', function($timeout) {
 
                 if(scope.answered) return;
 
-                if(scope.choices[id].selected) {
+                if(scope.choices[index].selected) {
 
                     if(scope.selected > 1) {
                         var typ = 'doubt';
@@ -171,7 +182,7 @@ questionModule.directive('highlight', ['$timeout', function($timeout) {
 
 
             scope.$watch('wrong_selected', function() {
-                if(scope.choices[id].wrong) {
+                if(scope.choices[index].wrong) {
                     if(!el.data('wrong')) animateOrDie('wrong');
                     el.data('wrong', true);
                 }

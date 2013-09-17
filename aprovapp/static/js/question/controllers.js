@@ -1,6 +1,8 @@
 questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', function($scope, $timeout, modalService) {
     
-    $scope.id = 0;
+    $scope.id = -1;
+    $scope.number = -1;
+
     $scope.enunciation = 'Com fundamento na Lei no 6.745, de 28 de dezembro de 1985, que estabelece o Estatuto dos Servidores Públicos Civis do Estado de Santa Catarina, assinale a alternativa correta.';
     $scope.choices = [
         { id: 123, text: 'A readaptação de funcionário poderá acarretar decesso ou aumento de remuneração.', selected: false, wrong: false},
@@ -42,12 +44,53 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
     $scope.post_anwer_area = false;
 
 
+    $scope.setAsAnswered = function() {
+
+        var selected = $scope.getAnswer();
+
+        $scope.reset();
+
+        if($scope.right_answer in $scope.answer) {
+            $scope.is_right = true;
+            $scope.answer_score = 1/selected;
+        }
+    
+        if($scope.answer_score == 0) {
+
+            $scope.pre_answer_area = false;
+            $scope.answering_area = false;
+            $scope.right_answer_area = false;
+            $scope.doubt_answer_area = false;
+            $scope.wrong_answer_area = true;
+
+            $scope.answer_score = 1;
+
+        /*} else if($scope.answer_score < 1) {
+
+            $scope.pre_answer_area = false;
+            $scope.answering_area = false;
+            $scope.right_answer_area = false;
+            $scope.doubt_answer_area = true;
+            $scope.wrong_answer_area = false;*/
+
+        } else {
+         
+            $scope.pre_answer_area = false;
+            $scope.answering_area = false;
+            $scope.right_answer_area = true;
+            $scope.doubt_answer_area = false;
+            $scope.wrong_answer_area = false;
+
+        }
+
+        $scope.answered = true;
+    };
 
 
     $scope.submitAnswer = function() {
         
         // only submit if something is selected
-        if($scope.selected < 1) return;
+        if($scope.selected < 1 || $scope.answered) return;
 
         // Change what is show
         $scope.pre_answer_area = false;
@@ -55,53 +98,23 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
         $scope.answering_area = true;
 
         // send the message via $http
-        // mocking with $timout
+        // mocking with $timoute
         $timeout(function() {
 
-            // action on success
+            // This RIGHT ANSWER should come through HTTP request
+            // By senting the Question ID in $scope.id
+            // STRONG SECURITY HERE
+            $scope.right_answer = $scope.choices[1].id;
 
-            $scope.right_answer = 1;
-
-            var selected = $scope.getAnswer();
-
-            $scope.reset();
-
-            for(c in $scope.answer) {
-                if($scope.answer[c] && c == $scope.right_answer) {
-                    $scope.is_right = true;
-                    $scope.answer_score = 1/selected;
-                }
+            if(angular.isDefined($scope.array_index)) {
+                // To connect to question
+                // Update questions
+                $scope.data_set[$scope.array_index].is_answered = true;
+                $scope.data_set[$scope.array_index].right_answer = $scope.right_answer;
             }
 
-            if($scope.answer_score == 0) {
-
-                $scope.pre_answer_area = false;
-                $scope.answering_area = false;
-                $scope.right_answer_area = false;
-                $scope.doubt_answer_area = false;
-                $scope.wrong_answer_area = true;
-
-                $scope.answer_score = 1;
-
-            } else if($scope.answer_score < 1) {
-
-                $scope.pre_answer_area = false;
-                $scope.answering_area = false;
-                $scope.right_answer_area = false;
-                $scope.doubt_answer_area = true;
-                $scope.wrong_answer_area = false;
-
-            } else {
-             
-                $scope.pre_answer_area = false;
-                $scope.answering_area = false;
-                $scope.right_answer_area = true;
-                $scope.doubt_answer_area = false;
-                $scope.wrong_answer_area = false;
-
-            }
-
-            $scope.answered = true;
+            // Set Answered state
+            $scope.setAsAnswered();
 
         }, 2000);
 
@@ -124,17 +137,31 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
     }
 
     $scope.getAnswer = function() {
-        var answer = [];
+        
+        var answer = {};
         var selected = 0;
+        
+        // To connect with exam
+        var exam_answer = [];
+        
         for(c in $scope.choices) {
             var choice = $scope.choices[c];
             if(choice.selected) {
-                answer[c] = true;
+                answer[$scope.choices[c].id] = true;
                 selected += 1;
+                
+                // To connect with exam
+                exam_answer.push($scope.choices[c].id)
             }
-            else answer[c] = false;
         }
+        
         $scope.answer = answer;
+        
+        // To connect with exam
+        if(angular.isDefined($scope.array_index)) {
+            $scope.data_set[$scope.array_index].answer = exam_answer;
+        }
+
         return selected;
     }
 
@@ -157,6 +184,8 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
             if($scope.choices[id].wrong) $scope.removeWrong(id);
             else $scope.addWrong(id);
         }
+
+        $scope.getAnswer();
 
     }
 
@@ -274,7 +303,7 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
 
 
     $scope.showScore = function() {
-        return ($scope.answer_score*100).toFixed(1);
+        return parseInt($scope.answer_score*100);
     }
 
     $scope.updateText = function() {
@@ -283,22 +312,17 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
 
         if($scope.selected == 0) {
 
-            $scope.answer_button_text = "Escolha a alternativa correta";
+            $scope.answer_button_text = "RESPONDER";
             $scope.answer_button_disabled = "secondary disabled";
             $scope.help_text_1 = 'Marque uma alternativa, se tiver certeza, ou mais de uma se estiver em dúvida.';
 
-        } else if($scope.selected == 1) {
+        } else if($scope.selected > 0) {
 
-            $scope.answer_button_text = "Responder com certeza";
+            var value = parseInt((1/$scope.selected)*100);
+
+            $scope.answer_button_text = "RESPONDER " + value + '%';
             $scope.answer_button_disabled = 'success';
-            $scope.help_text_1 = 'Se estiver certa você leva todos os pontos desta questão!';
-
-        } else if($scope.selected > 1) {
-
-            $scope.answer_button_text = "Responder em dúvida entre " + $scope.selected;
-            $scope.answer_button_disabled = 'primary';
-            
-            $scope.help_text_1 = 'Se uma das escolhidas for a correta, isso conta pontos para você.';
+            $scope.help_text_1 = 'Se estiver certa você leva ' + value + '% dos pontos';
 
         }
     }
@@ -338,23 +362,29 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
 
     $scope.loadJSON = function(json) {
 
+        // Is not JSON? Then end just now!
+        if(!angular.isObject(json)) return;
+
         $scope.choices = [];
+
+        var is_answered = false;
+        if(json.is_answered) {
+            var is_answered = true;
+        }
 
         for(var prop in json) {
             $scope[prop] = json[prop];
         }
 
         var has_answer = false;
-        if(json.answer.length) {
+        if(angular.isDefined(json.answer) && json.answer.length) {
             has_answer = true;
             var tmp_answer = {};
             for(var a in json.answer) {
                 tmp_answer[json.answer[a]] = true;
             }
-            json.answer = tmp_answer;
         }
         
-
         if(json.shuffle) {
             fisherYates($scope.choices);
         }
@@ -363,7 +393,7 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
             if(has_answer) {
                 for(var i in $scope.choices) {
                 
-                    if(($scope.choices[i].id in json.answer)) {
+                    if(($scope.choices[i].id in tmp_answer)) {
                         if($scope.answer_mode) $scope.select(i);
                     } else {
                         if(!$scope.answer_mode) $scope.select(i);
@@ -371,11 +401,10 @@ questionModule.controller('QuestionCtrl', ['$scope','$timeout', 'modalService', 
                 
                 }
             }
-            //$scope.submitAnswer();
+             
+            if(is_answered) $scope.setAsAnswered();
 
-        },1);
-
-        //$scope.submitAnswer();
+        },10);
 
     }
 

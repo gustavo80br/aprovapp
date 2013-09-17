@@ -14,11 +14,19 @@ modalModule.directive('dontTouch', function() {
                 var body = document.body;
                 var html = document.documentElement;
                 return Math.max(body.scrollHeight, body.offsetHeight, 
-                                html.clientHeight, html.scrollHeight, html.offsetHeight);
+                    html.clientHeight, html.scrollHeight, html.offsetHeight);
+            }
+
+            var getDocWidth = function() {
+                var body = document.body;
+                var html = document.documentElement;
+                return Math.max(body.scrollWidth, body.offsetWidth, 
+                    html.scrollWidth, html.offsetWidth, html.clientWidth);
             }
 
             $(window).bind('resize', function() {
                 element.css('height', getDocHeight());
+                element.css('width', getDocWidth());
             });
 
             css = {
@@ -26,7 +34,7 @@ modalModule.directive('dontTouch', function() {
                 'opacity': scope.opacity,
                 'background-color': scope.color,
                 'position':'absolute',
-                'width':'100%',
+                'width': getDocWidth(),
                 'height': getDocHeight(),
                 'top':'0',
                 'left':'0',
@@ -63,27 +71,21 @@ modalModule.directive('dontTouch', function() {
 
             var spinner = new Spinner(opts).spin();
 
-            /*console.log('chupeta na manteiga');
-            $(spinner.el).css({
-                top: document.documentElement.clientHeight/2,
-                left: document.documentElement.clientWidth/2
-            });*/
-
             element.append(spinner.el);
 
             var toggleSpinner = function(toggler) {
                 if(!toggler) {
-                    console.log('toggle_spinner FALSE');
                     spinner.stop();
                 } else {
                     opts.color = scope.spinnerColor;
                     spinner = new Spinner(opts).spin();
-                    
-                    console.log('toggle_spinner TRUE');
+
+                    var w_scroll = (typeof(window.pageXOffset) == 'number') ? window.pageXOffset : document.body.scrollLeft;
+
                     $(spinner.el).css({
                         position: 'absolute',
-                        top: document.documentElement.clientHeight/2,
-                        left: document.documentElement.clientWidth/2
+                        top: (document.documentElement.clientHeight/2),
+                        left: (document.documentElement.clientWidth/2) + w_scroll
                     });
 
                     element.append(spinner.el);
@@ -103,9 +105,14 @@ modalModule.directive('dontTouch', function() {
 
                         display = 'block';
                         prop = {
-                            'background-color': scope.color,
                             'opacity': scope.opacity
                         };
+
+                        element.css({
+                            'background-color': scope.color,
+                            'width': getDocWidth(),
+                            'height': getDocHeight()
+                        });
 
                         scope.toggle_spinner = scope.spinner;
                         /*if(scope.spinner) {
@@ -140,14 +147,6 @@ modalModule.directive('dontTouch', function() {
 
                 }
             );
-
-            scope.$watch(
-                'resize_trigger',
-                function(val) {
-                    element.css('height', getDocHeight());
-                }
-            );
-
 
         }
     }
@@ -191,6 +190,36 @@ modalModule.directive('modal', ['$timeout', 'dontTouchService', function($timeou
 
             $scope.default_top = parseInt(element.css('top'),10);
 
+
+
+            $(window).on('resize', function() {
+            
+                element.css({
+                    'opacity': 0
+                });
+
+                $timeout(function() {
+
+                    $scope.w_scroll = (typeof(window.pageXOffset) == 'number') ? window.pageXOffset : document.body.scrollLeft;
+                    var w = $(window).width();
+
+                    if($scope.size == 'fullscreen') {
+                        l = $scope.w_scroll;
+                    } else {
+                        w = w * 0.8;
+                        l = (w * 0.1) + $scope.w_scroll;
+                    }
+
+                    element.css({
+                        'width': w,
+                        'left': l,
+                        'opacity': 1
+                    });
+
+                }, 500);
+            });
+
+
             // Watch for visible property changes
             $scope.$watch('[visible, img_loaded, img]', function(value) {
 
@@ -200,24 +229,52 @@ modalModule.directive('modal', ['$timeout', 'dontTouchService', function($timeou
                     var complete = $('#modal-img')[0].complete;
 
                     var top = 0;
+                    var left = 0;
                     var opacity;
                     var status_changed = false;
 
                     if ((is_visible && has_image && (is_loaded||complete)) || (is_visible && !has_image && !is_loaded) ) {
                         //show
-                        $scope.start_scroll = $(window).scrollTop();
-                        top = ($scope.default_top + $scope.start_scroll);
+                        $scope.h_scroll = $(window).scrollTop();
+                        $scope.w_scroll = (typeof(window.pageXOffset) == 'number') ? window.pageXOffset : document.body.scrollLeft;
+                        top = ($scope.default_top + $scope.h_scroll);
+
+                        var w = $(window).width();
+
                         opacity = 1;
-                        
+
                         if($scope.size == 'fullscreen') {
-                            window.scrollTo(0,0);
+                            window.scrollTo($scope.w_scroll,0);
                             top = 0;
+                            var w_size = w;
+                            var left = $scope.w_scroll;
+                            var border = 0;
+                            var box_shadow = 'none';
+                        } else {
+                            var w_size = w * 0.8;
+                            var left = $scope.w_scroll + (w * 0.1);
+                            var border = '1px solid rgb(102, 102, 102)';
+                            var box_shadow =  '0px 0px 10px rgba(0, 0, 0, 0.4)';
                         }
 
                         dontTouchService.toggle_spinner();
 
                         element.data('visible',true);
-                        var status_changed = true;                 
+                        var status_changed = true;
+
+                        element.css({
+                            'width' : w_size,
+                            'left' : left,
+                            'border' : border,
+                            'box-shadow' : box_shadow
+                        });
+
+                        var prop = {
+                            'top' : top,
+                            'opacity' : opacity,
+                            'margin' : 0
+                        }
+
                     
                     } else if(!is_visible && element.data('visible')) {
 
@@ -233,34 +290,31 @@ modalModule.directive('modal', ['$timeout', 'dontTouchService', function($timeou
                             var viewport = $('meta[name=viewport]');             
                             $timeout(function() {
                                 viewport.prop('content', 'initial-scale=1.0, maximum-scale=1.0, user-scalable=1');
-                            }, 300);
-                            $timeout(function() {
-                                viewport.prop('content', 'initial-scale=1.0, maximum-scale=10.0, user-scalable=1');
-                            }, 500);
+                                $timeout(function() {
+                                    viewport.prop('content', 'initial-scale=1.0, maximum-scale=10.0, user-scalable=1');
+                                }, 10);
+                            }, 10);
+                        } 
+
+                        $timeout(function() {
+                            // Scroll back to the position before the modal open
+                            $scope.h_scroll = ($scope.h_scroll == 'undefined') ? 0 : $scope.h_scroll;
+                            $scope.w_scroll = ($scope.w_scroll == 'undefined') ? 0 : $scope.w_scroll;
+                            window.scrollTo($scope.w_scroll, $scope.h_scroll);
+                        },250);
+
+                        var status_changed = true;
+
+                         var prop = {
+                            'top' : top,
+                            'opacity' : opacity,
+                            'margin' : 0
                         }
 
-                        // Scroll back to the position before the modal open
-                        if(typeof $scope.start_scroll != 'undefined') {
-                            window.scrollTo(0,$scope.start_scroll);
-                        }
-                        var status_changed = true;
                     }
 
 
                     if(status_changed) {
-
-                        var prop = {
-                            'top' : top,
-                            'opacity' : opacity
-                        }
-
-                        if($scope.size == 'fullscreen') {
-                            prop['border'] = 0;
-                            prop['box-shadow'] = 'none';
-                        } else {
-                            prop['border'] = '1px solid rgb(102, 102, 102)';
-                            prop['box-shadow'] = '0px 0px 10px rgba(0, 0, 0, 0.4)';
-                        }
 
                         if(typeof(element.animate) === 'function'  && $scope.animate) {
                             element.animate(prop, 250, 'swing', function() {

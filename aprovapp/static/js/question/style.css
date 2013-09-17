@@ -1,16 +1,46 @@
 BODY
 {
+	position: static;
 	background-color: #39140C;
-	background-image: url(../../img/desk-bg.jpg);
+	background: url(../../img/type.png) #000;
 }
 .panel
 {
 	background-color: #FFF;
 }
+
+#expand-top-bar
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
 I.general
 {
 	font-size: 2em;
 	display: block;
 	float: left;
-	padding: 0px 14px;
+	padding: 0px 14px;n
 }
+
+A.reference {
+	margin-bottom: 0px;
+}
+
+I.reference
+{
+	display: block;
+	float: left;
+	margin-right: 5px;
+}
+
+H5.subheader span {
+	margin-bottom: 20px;
+}
+
+H5.subheader p {
+	font-size:0.85em;
+}
+
+

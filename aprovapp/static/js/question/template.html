@@ -1,15 +1,4 @@
-<div ng-controller="QuestionCtrl">
-  <!-- Question -->
-  <div class="small-12 large-9 columns">
-    <div class="panel radius">
-      <h4 class="subheader">{{ enunciation }}</h4>  
-      <a href="#" class="button secondary" ng-click="showReference()">Referência</a>
-      <hr/>
-      <dl question>
-        <dd ng-repeat="choice in choices" highlight="{{ $index }}" ng-click="select($index)" style="cursor:pointer"><span><b>{{ choiceLetter($index) }})</b> {{ choice.text }}</span></dd>
-      </dl>
-    </div>
-  </div>
+<div ng-controller="QuestionCtrl" class="row">
 
   <!-- Side Question Content -->
   <div class="small-12 large-3 columns">
@@ -17,8 +6,8 @@
     <!-- Pre-answer content -->
     <div ng-show="pre_answer_area">
 
-      <!-- Button text -->
-      <a href="#" class="large button expand radius" ng-click="submitAnswer()" ng-class="answer_button_disabled" >
+      <!-- Answer Button -->
+      <a href="" class="button expand radius" ng-click="submitAnswer()" ng-class="answer_button_disabled">
         {{ answer_button_text }}
       </a>
 
@@ -27,48 +16,44 @@
         <p>{{ help_text_1 }}</p>
       </div>
 
-      <!-- Kick Mode Button -->
-      <a href=""  class="button expand radius" ng-click="kickMode()" ng-class="{true:'alert', false:'alert-dark'}[kick_mode]">
-        MODO CHUTE
-      </a>
+      <!-- Kick Mode Button and Reset Button-->
+      <a href=""  class="button expand" ng-click="kickMode()" ng-class="{true:'alert', false:'alert-dark'}[kick_mode]" style="width:50%">CHUTAR</a><a href="" class="button secondary expand" ng-click="reset()" style="width:50%">LIMPAR</a>
 
-      <!-- Auxiliar Text 2 -->
-      <div class="alert-box secondary hide-for-small">
-        <p>Em caso de pânico, entre em MODO CHUTE e seja feliz!</p>
-      </div>
-
-        <!-- Answer Mode Buttons
-        <ul class="small-block-grid-2">
-          <li><a href="#" class="button primary small" ng-click="changeMode(click_right)" ng-class="click_right">Marcar<br/>Certas</a></li>
-          <li><a href="#" class="button primary small" ng-click="changeMode(click_wrong)" ng-class="click_wrong">Marcar<br/>Erradas</a></li>
-        </ul> -->
-
-        <!-- Answer Mode Buttons -->
-        <a href="#" class="button primary small" ng-click="changeMode(click_right)" ng-class="click_right" style="width:50%">Marcar</br>Certas</a><a href="#" class="button primary small" ng-click="changeMode(click_wrong)" ng-class="click_wrong" style="width:50%">Marcar</br>Erradas</a>
-
-        <!-- Reset Button -->
-        <a href="" class="button secondary expand radius" ng-click="reset()" >
-          Limpar
-        </a>
-
-      </div>
-
-      <!-- Sending answer content -->
-      <div ng-show="answering_area">
-        <p> ANSWERING </p>
-      </div>
-
-      <div ng-show="right_answer_area" >
-        <a href="#" ng-click="restart()" class="large button expand success radius"><i class="general foundicon-checkmark"></i> RESPOSTA CERTA!</a>
-      </div>
-
-      <div ng-show="doubt_answer_area">
-        <a href="#" ng-click="restart()" class="large button expand primary radius"><i class="general foundicon-idea"></i> FOI POR POUCO! {{ showScore() }}%</a>     
-      </div>
-
-      <div ng-show="wrong_answer_area">
-        <a href="#" ng-click="restart()" class="large button expand alert radius"><i class="general foundicon-error"></i> RESPOSTA ERRADA!</a>
-      </div>
+      <!-- Answer Mode Buttons -->
+      <a href="#" class="button primary small" ng-click="changeMode(click_right)" ng-class="click_right" style="width:50%">Marcar</br>Certas</a><a href="#" class="button primary small" ng-click="changeMode(click_wrong)" ng-class="click_wrong" style="width:50%">Marcar</br>Erradas</a>
+      
 
     </div>
+
+    <!-- Sending answer content -->
+    <div ng-show="answering_area">
+      <p> ANSWERING </p>
+    </div>
+
+    <div ng-show="right_answer_area" >
+      <a href="#" class="large button expand success radius"><i class="general foundicon-checkmark"></i> RESPOSTA {{ showScore() }}% CERTA!</a>
+    </div>
+
+    <div ng-show="kick_answer_area">
+      <a href="#" class="large button expand primary radius"><i class="general foundicon-idea"></i> FOI POR POUCO! {{ showScore() }}%</a>     
+    </div>
+
+    <div ng-show="wrong_answer_area">
+      <a href="#" class="large button expand alert radius"><i class="general foundicon-error"></i> RESPOSTA ERRADA!</a>
+    </div>
+
+  </div>
+
+  <!-- Question -->
+  <div class="small-12 large-9 columns">
+    <div class="panel radius">
+      <h5 class="subheader"><strong ng-bind="number"></strong>) <span ng-bind-html="enunciation"></span></h4>  
+      <a ng-show="reference.length" ng-click="showReference()" class="button small secondary reference"> <i class="reference foundicon-page" ></i>Texto da Questão</a>
+      <hr/>
+      <dl question>
+        <dd ng-repeat="choice in choices" choice index="{{ $index }}" id="{{ choice.id }}"ng-click="select($index)" style="cursor:pointer"><span><b>{{ choiceLetter($index) }})</b> {{ choice.text }}</span></dd>
+      </dl>
+    </div>
+  </div>
+
 </div>

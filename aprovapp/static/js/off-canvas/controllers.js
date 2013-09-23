@@ -83,16 +83,26 @@ offCanvasModule.controller('offCanvasCtrl', ['$scope', '$timeout', 'modalService
 		$scope.count_timer = null; // Id for setInterval
 		$scope.idle_countdown_timer = null; // Id for countdown timeout
 		
+		
+
 		// Modal to inform IDLE
-		modalService.alert({
+		
+		var props = {
             title: "Estudo Interrompido",
             lead: "Devido à inatividade, paramos a contagem de seu tempo de estudo",
             txt: "Clique no botão abaixo, ou em qualquer área da tela e volte a estudar.",
             block: false,
+            confirm_btn: true,
             confirm_caption: "Voltar ao Estudo",
             onConfirm: $scope.unblockIdle,
             onDismiss: $scope.unblockIdle
-        });
+        }
+
+		if(Modernizr.touch) {
+			modalService.change(props)
+		} else {
+			modalService.alert(props);
+		}
 	}
 
 	$scope.unblockIdle = function() {

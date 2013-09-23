@@ -71,6 +71,10 @@ modalModule.factory('modalService', ['$timeout', function($timeout) {
         this.scope = scope;
     }
 
+    m.change = function(prop) {
+        this.scope.loadProperties(prop);
+    }
+
     m.message = function(prop) {
         if(this.scope.visible) {
             this.scope.hide();

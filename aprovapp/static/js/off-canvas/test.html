@@ -7,7 +7,7 @@
 <head>
 
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width" />
+  <meta name="viewport" content="width=device-width"/>
 
   <title>EXAM TEST</title>
   
@@ -21,15 +21,19 @@
   '.js><\/script>')
   </script>
 
+  
+
   <script src="/static/foundation/js/vendor/custom.modernizr.js"></script>
 
   <!-- ANGULARJS -->
   <script src="/static/js/app/vendor/angular.min.js" type="text/javascript"></script>
   <script src="/static/js/app/vendor/angular-sanitize.min.js"></script>
+
   
   <!-- 3rd PART LIBS -->
   <script src="/static/js/spin.min.js" type="text/javascript"></script>
   <script src="/static/js/stateManager.js" type="text/javascript"></script>
+  <script src="/static/js/vpscale.js"></script>
   
   <!-- MODAL -->
   <link rel="stylesheet" href="/static/js/modal/style.css" />
@@ -65,10 +69,12 @@
 
 <body ng-app="test">
 
-  	<div ng-controller="offCanvasCtrl">
+  	<div id="canvas" ng-controller="offCanvasCtrl">
 
   		<div static-row-background id="expand-top-bar" class="top-bar"></div>
       
+      <div class="contain-to-grid">
+
       <nav static-row class="top-bar">
         
         <ul class="title-area">
@@ -85,11 +91,11 @@
           <!-- Left Nav Section -->
           <ul class="left">
             <li class="divider"></li>
-            <li class="active"><a href="#">Questão {{ user_pointer }} de {{ size }}</a></li>
+            <li class="active"><a href="#">Questão {{ user_pointer }} de {{ data_length }}</a></li>
             <li class="divider"></li>
-            <li><a href="" ng-click="previous()">ANTERIOR</a></li>
+            <li><a href="" ng-click="goTo('prev','button', false)">ANTERIOR</a></li>
             <li class="divider"></li>
-            <li><a href="" ng-click="next()">PROXIMA</a></li>
+            <li><a href="" ng-click="goTo('next','button', false)">PROXIMA {{ active_time }}</a></li>
             <li class="divider"></li>
             <li class="has-form">
               <form>
@@ -110,6 +116,8 @@
         DSDSFF
 
       </nav>
+
+    </div>
 
       <ul class="small-block-grid-3" infinite-canvas>
 

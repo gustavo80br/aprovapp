@@ -147,19 +147,16 @@ modalModule.controller('ModalCtrl', ['$scope', '$timeout', 'stateManager', 'moda
             dontTouchService.on({
                 block: block,
                 animate: $scope.animate,
-                
                 spinner: $scope.spinner,
                 spinnerColor: $scope.spinnerColor,
                 color: $scope.overlayColor,
                 opacity: $scope.overlayOpacity
-            
             }, function() {
                 $scope.hide();
             });
 
-            if(angular.isDefined($scope.monitor_scroll)) {
-                $scope.monitor_scroll = false;
-            }
+            $scope.$emit('modalshow');
+
         }
     };
 
@@ -178,10 +175,8 @@ modalModule.controller('ModalCtrl', ['$scope', '$timeout', 'stateManager', 'moda
             $timeout(function() {
                 $scope.loadDefaults();
             }, 250);
-        
-            if(angular.isDefined($scope.monitor_scroll)) {
-                $scope.monitor_scroll = true;
-            }
+
+            $scope.$emit('modalhide');
 
         }
     };

@@ -2,333 +2,373 @@
 // Infinite Canvas Container
 //
 offCanvasModule.directive('infiniteCanvas', ['$timeout', function($timeout) {
-	return {
+    return {
 
-		link: function($scope, $element, $attributes) {
+        link: function($scope, $element, $attributes) {
 
-			var q = undefined;
-			var last_position = {'x':0, 'y':0}
+            var q;
 
-			var enable_keys = false;
-
-			var update_position = function(force_run) {
-
-				// Obtem a posição atual do scroll horizontal
-
-				// Só segue se tiver ocorrido scroll horizontal
-
-				// Decide para que lado ir, direita ou esquerda
-				// e define posição final
-
-				// Define no escopo a casa atual baseado no resultado final
-
-				// Manda animar
-				// salva o id da animação para cancelamento no scope
-
-				console.log('Executing scroll -> ' + $scope.monitor_scroll);
-
-				if(!$scope.monitor_scroll) return;
-
-		    	// Calculate X offset
-		    	var offset = {
-		    		'x': (typeof(this.pageXOffset) == 'number') ? this.pageXOffset : document.body.scrollLeft,
-		    		'y': (typeof(this.pageYOffset) == 'number') ? this.pageYOffset : document.body.scrollTop
-		    	}
-
-	    		// Emit events if position changed
-	    		if(last_position.x != offset.x || force_run) $scope.$broadcast('xscroll', offset.x, force_run);
-	    		//if(last_position.y != offset.y || is_resizing) $scope.$broadcast('yscroll', offset.y);
-	    	
-		    	last_position = offset;
-
-		    };
+            // http://javascript.info/tutorial/animation
+            var animate = function(opts) {
+              var start = new Date;
+              var id = setInterval(function() {
+                var timePassed = new Date - start;
+                var progress = timePassed / opts.duration;
+                if (progress > 1) progress = 1;
+                var delta = opts.delta(progress);
+                opts.step(delta);
+                if (progress == 1) {
+                  clearInterval(id);
+                  opts.finish();
+                }
+              }, opts.delay || 10);
+              return id;
+            }
 
 
-		    $(window).on('resize', function() {
-                
+            var setActualScrollPosition = function() {
+                // Obtem a posição atual do scroll horizontal
+                var w = (typeof(window.pageXOffset) == 'number') ?
+                    window.pageXOffset : document.body.scrollLeft;
+
+                var h = (typeof(window.pageYOffset) == 'number') ?
+                    window.pageYOffset : document.body.scrollTop;
+
+                var vp_scale = getViewportScale();
+
+                $scope.setScrollPosition(w, h, vp_scale);
+
+            }
+
+            var setScreenSizes = function () {
                 // Calcula formula de casas baseado no W x H atual
                 // Salva formula no scope
                 
-                console.log('SCROLL por resize');
-                scroll(true);
-                $timeout(function() {
-                	 $scope.$broadcast('resize');
-                }, 100);
+                var body = document.body;
+                var html = document.documentElement;
+                
+                var sizes = {
+                    'view_w' : html.clientWidth,
+                    'view_h' : html.clientHeight,
+                    'doc_w' : Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight),
+                    'doc_h': Math.max(body.scrollWidth, body.offsetWidth, html.scrollWidth, html.offsetWidth, html.clientWidth)
+                };
+
+
+                $scope.setScreenSizes(sizes);
+
+            }
+
+            var getViewportScale = function() {
+
+                if(Modernizr.touch) {
+
+                    var visual_vp = window.innerWidth;
+                    var layout_vp = document.documentElement.clientWidth;
+
+                    // Calculate viewport scale
+                    var viewport_scale = layout_vp / visual_vp;
+
+                    if(isNaN(viewport_scale)) viewport_scale = 1;
+
+                } else {
+                    var viewport_scale = 1;
+                }
+
+                return viewport_scale;
+
+            }
+
+            var updatePostition = function() {
+
+                    // Atualiza scroll position
+                    setActualScrollPosition();
+                    setScreenSizes();
+
+                    $scope.updatePosition();
+
+            };
+
+            var stopAnimation = function() {
+                if(angular.isDefined($scope.anima_id)) {
+                    clearInterval($scope.anima_id);
+                    $scope.moving = false;
+                    setActualScrollPosition();
+                }
+            };
+
+
+            // Monitora mudanças de posição e faz o scroll automatico
+            $scope.$on('move', function(e, cause) {
+
+                var ini_pos = $scope.scroll_w;
+                var go_to_pos = $scope.scroll_position;
+                var delta = go_to_pos - ini_pos;
+
+                if(ini_pos == go_to_pos || isNaN(ini_pos) || isNaN(go_to_pos)) return;
+
+                //var vp_scale = getViewportScale();
+                //if(vp_scale != 1) return;
+                if(($scope.viewport_scale > 1.2 || $scope.viewport_scale < 0.8) && cause == 'update') return;
+
+
+                if(cause == 'resize') {
+                    // Dont animate
+                    window.scrollTo(go_to_pos, $scope.scroll_h);
+
+                } else {
+
+                    var big = Math.max(ini_pos, go_to_pos);
+                    var small = Math.min(ini_pos, go_to_pos);
+
+                    var max_dur = 1000;
+                    var dur_rate = (big-small)/$scope.view_port;
+                    var duration = max_dur * dur_rate;
+
+                    var e_in = function(p) { return 1 - Math.sin(Math.acos(p)); }
+                    var makeEOut = function(d) { 
+                        return function(p) {
+                            return 1 - d(1-p);
+                        };
+                    };
+
+                    var easing = makeEOut(e_in);
+                    if(Modernizr.touch) {
+                        duration = max_dur;
+                        //easing = e_in;
+                    }
+
+                    // Set moving state
+                    $scope.moving = true;
+
+                    $scope.anima_id = animate({
+                        delay: 10,
+                        duration: duration, 
+                        delta: easing,
+                        step: function(rate) {
+
+                          // Define steps de animação
+                          var step = (ini_pos < go_to_pos) ?
+                            ini_pos + (delta * rate) :
+                            go_to_pos - (delta * (1-rate));
+
+                          // Executa o passo
+                          window.scrollTo(step, $scope.scroll_h); 
+                        
+                        },
+                        finish: function() {
+                            setActualScrollPosition();
+                            $timeout(function() {
+                                $scope.moving = false;
+                                $scope.scrolling = false;
+                            }, 0);
+                        }
+                    });
+
+                }
+
             });
 
-			$(window).on('mousedown', function() {
-				
-				// Altera o Estado do usuário no scope
-				// Avisa que ele está mexendo o mouse
 
-				$scope.monitor_scroll = false;
-			});
+            $(window).on('touchstart', function() {
+                $scope.imHere();
+                // Para animação
+                stopAnimation();
+            });
 
-			$(window).on('mouseup', function() {
-				
-				// Altera o Estado do usuário no scope
-				// Avisa que ele está mexendo o mouse
+            $(document).on('mousemove', function(e) {
+                $scope.imHere();
+                if(!('__proto__' in {})) {
+                    // for IE only, because it dont have mouseup
+                    if($scope.scrolling && $scope.mouse_down) {
+                        setActualScrollPosition();
+                        $scope.definePointer();
+                        $scope.scrolling = false;
+                    }   
+                }
+            });
 
-				$scope.monitor_scroll = true;
-				console.log('SCROLL por mouse up');
-				if($scope.monitor_click) {
-					scroll();
-				}
-			});
+            $(window).on('mousedown', function() {
+                $scope.imHere();
+                // Altera o Estado do usuário no scope
+                // Avisa que ele está clicou o mouse
+                
+                // Para animação
+                stopAnimation();
 
-			$(document).on('keydown', function(e){
-				if(!enable_keys) return;
-				switch(e.keyCode) {
-					case 37:
-						$scope.previous();
-                   		$scope.monitor_scroll = false;
-                   		break;
-                   	case 39:
-                   		$scope.next();
-                		$scope.monitor_scroll = false;
-                		break;
-                	case 35:
-                		$scope.goTo('last');
-                		$scope.monitor_scroll = false;
-                		break;
-                	case 36: 
-                		$scope.monitor_scroll = false;
-                		$scope.goTo(1);
-                		break;
-				}
+                $scope.mouse_down = true;
 
-			});
+            });
 
 
-			// Listen to scroll events to manage the canvas
-			$(window).on('scroll', function(){
-				console.log($scope.monitor_scroll);
-				if(!$scope.monitor_scroll) return;
-			    // Set scroll delay to reduce load
-				var scroll_speed = 200;
-				// Cancell if too fast scroll repetitive event
-				$timeout.cancel(q);
-				// Execute scroll
-				console.log('SCROLL por scroll monitor');
-				q = $timeout(scroll, scroll_speed);
+            $(window).on('mouseup', function() {
+                $scope.imHere();
+                // Altera o Estado do usuário no scope
+                // Avisa que ele largou o mouse
 
-			});
+                $scope.mouse_down = false;
+
+                if($scope.scrolling) {
+                    setActualScrollPosition();
+                    $scope.definePointer();
+                    $scope.scrolling = false;
+                }
+            });
+            
 
 
-			$timeout(function() {
-				console.log('SCROLL por link');
-				scroll(true);
-				enable_keys = true;
-				$timeout(function() {
-                	 $scope.$broadcast('resize');
-                }, 100);
-			}, 1000);
+            $(window).on('scroll', function(e) {
+                $scope.imHere();
+                // Monitora o scroll com um timeout
+                // E pede update da localização
 
-		}
+                if(!$scope.scrolling)  $scope.scrolling = true;
 
-	}
+                // If is moving, don't need to do nothing
+                if($scope.moving || $scope.mouse_down) {
+                    return;
+                }
+
+                $timeout.cancel(q);
+
+                var speed = 500;
+                q = $timeout(function() {
+                    setActualScrollPosition();
+                    $scope.definePointer();
+                    $scope.scrolling = false;
+                }, speed);
+
+            });
+
+
+            $(window).on('resize', function() {
+
+                $scope.imHere();
+                // Stop moving animation
+                if($scope.moving) stopAnimation();
+                // Set screen sizes
+                setScreenSizes();
+                // Fix position without no animation
+                $scope.goTo($scope.pointer, 'resize', true);
+            });
+
+
+            $(document).on('keydown', function(e){
+
+                $scope.imHere();
+                // Stop moving animation
+                if($scope.moving) stopAnimation();
+                // Key actions translated to goTo parameters
+                var keys = {
+                    37 : 'prev',
+                    39 : 'next',
+                    35 : 'last',
+                    36 : 'first'
+                }
+                // Execute key comand
+                var code = e.keyCode;
+                if(keys[e.keyCode]) {
+                    $scope.goTo(keys[e.keyCode], 'keys', false);
+                    e.preventDefault();            
+                }
+            });
+
+            $scope.$on('modalhide', function() {
+                window.scrollTo($scope.scroll_position, 0);
+            });
+
+            // FIRST SCREEN SIZE LOADING
+            $timeout(setScreenSizes, 500);
+
+        }
+
+    }
 }]);
-
 
 //
 // Static navigation bar
 //
 offCanvasModule.directive('staticRow', ['$timeout', function($timeout) {
-	return {
-		link: function($scope, $element, $attributes) {
-			
-			var el = $($element[0]);
-
-			// Listen to scroll events
-			$scope.$on('positionupdate', function(e, data) {
-
-				// If no offset to start with, get actual position
-				if(!angular.isDefined(data.offset)) {
-					data.offset = (typeof(window.pageXOffset) == 'number') ? window.pageXOffset : document.body.scrollLeft;
-				}
-
-				// Actualize staticRow position
-				el.css('left', data.position * data.width);
-
-				var scroll = function(from, to, scroll_height, duration, f) {
-
-					//if(false) {
-					if(!angular.isDefined(data.animate) || data.animate) {
-
-						var step = (to - from)/duration * f;
-
-						var q = $timeout(function() {
-							if(!isNaN(parseInt(step, f))) {
-								window.scrollTo(from + step, scroll_height);
-								scroll(from + step, to, scroll_height, duration - f, f);
-							}
-						}, f);
-
-					} else {
-						window.scrollTo(to, scroll_height);
-					}
-
-				}
-
-				function anima(opts) {
-	   
-				  var start = new Date  
-				 
-				  var id = setInterval(function() {
-				    var timePassed = new Date - start
-				    var progress = timePassed / opts.duration
-				 
-				    if (progress > 1) progress = 1
-				     
-				    var delta = opts.delta(progress)
-				    opts.step(delta)
-				     
-				    if (progress == 1) {
-				      clearInterval(id);
-				      $scope.monitor_scroll = true;
-				    }
-				  }, opts.delay || 10)
-				   
-				}
-
-				
-
-
-				// Smooth scroll
-				var h = $(window).scrollTop();
-				scroll(data.offset, (data.position * data.width), h, 100, 10);
-
-				$scope.monitor_scroll = false;
-
-
-				var pos_start = data.offset;
-				var pos_end = data.position * data.width;
-
-				console.log('++' + data.offset);
-				console.log('++' + pos_end);
-
-				// anima({
-				//     delay: 10,
-				//     duration: 100, // 1 sec by default
-				//     delta: function(p) {return p},
-				//     step: function(delta) {
-				//       $scope.monitor_scroll = false;	
-				//       if(pos_end < pos_start) {
-				//       	var go_to = pos_end + (pos_start * (1-delta));	
-				//       } else {
-				//       	var go_to = pos_start + (pos_end * delta);
-				//       }
-				//       console.log('d--'+delta);
-				//       console.log('g--'+go_to);
-				//       window.scrollTo(go_to, h); 
-				//     }
-				// });
-		
-			});
-		}
-	}
+    return {
+        link: function($scope, $element, $attributes) {
+            var el = $($element[0]);
+            // Listen to MOVE event
+            $scope.$on('move', function() {
+                // Actualize staticRow position
+                el.css('left', $scope.scroll_position);
+            });
+        }
+    }
 }]);
 
 
 offCanvasModule.directive('staticRowBackground', [function() {
-	return {
-		link: function($scope, $element, $attributes) {
-			var el = $($element[0]);
-			// Listen to scroll events
-			$scope.$on('resize', function(e) {
-				el.css('width', $scope.width * $scope.data_set.length);
-			});
-		}
-	}
+    return {
+        link: function($scope, $element, $attributes) {
+            var el = $($element[0]);
+            $scope.$on('resize', function(e) {
+                el.css('width', $scope.view_port * $scope.data_length);
+            });
+        }
+    }
 }]);
 
 
 offCanvasModule.directive('goTo', ['$timeout', function($timeout) {
-	return {
-		link: function($scope, $element, $attributes) {
-			
-			var el = $($element[0]);
+    return {
+        link: function($scope, $element, $attributes) {
+            
+            var el = $($element[0]);
 
-			// var el = $($element);
-			// Listen to scroll events
-			
-			el.on('focus', function(e) {
-				$scope.monitor_click = false;
-			});
+            // Listen to scroll events
+            
+            el.on('focus', function(e) {
+                e.preventDefault();
+                $scope.monitor_click = false;
+            });
 
-			el.on('blur', function(e) {
-				
-				var val = el[0].value;
-				
-				if(isNaN(val)) el[0].value = $scope.user_pointer;
-				else if(val < 1) el[0].value = 1;
+            el.on('blur', function(e) {
+                
+                e.preventDefault();
 
-				if(val != $scope.user_pointer) {
-					$scope.goTo(val);
-				}
-				$timeout(function() {
-					$scope.monitor_click = true;
-				}, 300);
-			});
+                var val = el[0].value;
 
-			$scope.$watch('user_pointer', function() {
-				el[0].value = $scope.user_pointer;
-			});
-		}
-	}
+                if(isNaN(val)) {
+                    val = $scope.pointer + 1;
+                    el[0].value = val;
+                }
+
+                if(val != $scope.pointer + 1) {
+                    $scope.goTo(parseInt(val-1), 'input', false);
+                }
+
+            });
+
+            $scope.$watch('pointer', function() {
+                el[0].value = $scope.pointer + 1;
+            });
+        }
+    }
 }]);
 
 
 //
-//	Items in the Infinite Canvas
+//  Items in the Infinite Canvas
 //
 offCanvasModule.directive('infiniteItem', [function() {
-	return {
+    return {
 
-		link: function($scope, $element, $attributes) {
+        link: function($scope, $element, $attributes) {
 
-			var element = $($element[0]);
-			var factor = 1;
+            var element = $($element[0]);
+            var factor = 1;
 
-			// Position itself in the infiniteCanvas
-			var number = $attributes.infiniteItem;
-			var margin_left = number * factor * 100;
-			element.css('left', margin_left + '%');
+            // Position itself in the infiniteCanvas
+            var number = $attributes.infiniteItem;
+            var margin_left = number * factor * 100;
+            element.css('left', margin_left + '%');
 
-			// Only one of the items will be used to measure positon.
-			// In this case we are using the 1, the 2nd in the data list
-			if(number == 1) {
-				// When the X scroll is changed, check to see the element position
-				$scope.$on('xscroll', function(e, offset, force_run) {
-					
-					var view_size = element.width();
-					
-					var cut_point = 0.7;
+        }
 
-					if(!force_run) {
-						var position_float = (offset/(view_size * factor));
-						var floor = Math.floor(position_float)
-						var in_rate = position_float - floor;
-						var position = (in_rate >= cut_point) ? floor + 1 : floor
-						var max_pos = $scope.data_set.length-1;
-						if(position > max_pos) position = max_pos;
-					} else {
-						var position = $scope.pointer;
-					}
-					
-					var data = {
-						'position': position,
-						'factor': factor,
-						'width': view_size,
-						'offset': offset,
-						'animate': !force_run
-					}
-					console.log('PU por XSCROLL');
-					$scope.$emit('positionupdate', data);
-				});
-			}
-
-		}
-
-	}
+    }
 }]);

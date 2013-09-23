@@ -71,6 +71,19 @@ modalModule.factory('modalService', ['$timeout', function($timeout) {
         this.scope = scope;
     }
 
+    m.message = function(prop) {
+        if(this.scope.visible) {
+            this.scope.hide();
+            $timeout(function() {
+                m.message(prop);
+            }, 250);
+        } else {
+            this.scope.hideButtons();
+            this.scope.loadProperties(prop);
+            this.scope.show(prop.block);
+        }
+    }
+
     m.alert = function(prop) {
 
         if(this.scope.visible) {

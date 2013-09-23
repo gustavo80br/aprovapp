@@ -161,7 +161,7 @@ modalModule.directive('modal', ['$timeout', 'dontTouchService', function($timeou
                   + '<h2 ng-show="title.length">{{ title }}</h2>'
                   + '<p class="lead" ng-show="lead.length">{{ lead }}</p>'
                   + '<p ng-show="txt.length">{{ txt }}</p>'
-                  + '<img id="modal-img" ng-show="img.length" ng-src="{{ img }}" image-load>{{ txt }}</p>'
+                  + '<img id="modal-img" ng-show="img.length" ng-src="{{ img }}" image-load></p>'
                   + '<a class="close-reveal-modal" ng-click="dismissAction()">x</a>'
                   + '<div>'
                   + '<ul class="button-group">'

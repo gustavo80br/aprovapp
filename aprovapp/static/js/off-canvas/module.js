@@ -1,1 +1,0 @@
-var offCanvasModule = angular.module('offCanvasModule', []);

@@ -5,7 +5,7 @@ from flask.ext.security import Security, SQLAlchemyUserDatastore, UserMixin, Rol
 from flask.ext.security.utils import login_user
 from flask.ext.sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/cdn', static_folder='/home/ubuntu/projects/aprovapp/cdn/')
 app.config.from_object('config')
 
 db = SQLAlchemy(app)
@@ -57,7 +57,7 @@ APP LEVEL URLS
 """
 @app.route("/")
 def admin_frame():
-	return render_template("admin_frame.html")
+        return render_template("admin_frame.html")
 
 """
 CREATE THE DATABASE

@@ -37,6 +37,6 @@ FLASK-SECURITY SETTINGS
 """
 UPLOAD SETTINGS
 """
-TEMP_UPLOAD_FOLDER = '/home/ubuntu/projects/aprovapp/aprovapp/static/tmp_uploads/'
-UPLOAD_FOLDER = '/home/ubuntu/projects/aprovapp/aprovapp/static/uploads/'
+TEMP_UPLOAD_FOLDER = '/home/ubuntu/projects/aprovapp/cdn/temp-uploads/'
+UPLOAD_FOLDER = '/home/ubuntu/projects/aprovapp/cdn/uploads/'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])

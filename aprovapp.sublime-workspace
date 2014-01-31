@@ -1,0 +1,724 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"paddin",
+				"padding-bottom"
+			],
+			[
+				"pre",
+				"pre_idle_modal"
+			],
+			[
+				"idle_coun",
+				"idle_countdown_timer"
+			],
+			[
+				"modal",
+				"modal_open"
+			],
+			[
+				"docu",
+				"documentElement"
+			],
+			[
+				"get",
+				"getViewportScale"
+			],
+			[
+				"upd",
+				"updateScreenPositions"
+			],
+			[
+				"scrol",
+				"scroll_position"
+			],
+			[
+				"scro",
+				"scroll_pos"
+			],
+			[
+				"to",
+				"touch"
+			],
+			[
+				"move",
+				"moves"
+			],
+			[
+				"vie",
+				"viewport_scale"
+			],
+			[
+				"vi",
+				"viewport_scale"
+			],
+			[
+				"view",
+				"viewport_scale"
+			],
+			[
+				"moni",
+				"monitor_scroll"
+			],
+			[
+				"e",
+				"e"
+			],
+			[
+				"monit",
+				"monitor_click"
+			],
+			[
+				"sc",
+				"scroll_position"
+			],
+			[
+				"go",
+				"go_to_pos"
+			],
+			[
+				"scr",
+				"scroll_w"
+			],
+			[
+				"data",
+				"data_length"
+			],
+			[
+				"cane",
+				"clearInterval"
+			],
+			[
+				"mon",
+				"monitor_scroll"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"mo",
+				"monitor_scroll"
+			],
+			[
+				"da",
+				"data_set"
+			],
+			[
+				"key",
+				"keyCode"
+			],
+			[
+				"is",
+				"is_resizing"
+			],
+			[
+				"fon",
+				"font-size"
+			],
+			[
+				"mous",
+				"mouse_control"
+			],
+			[
+				"back",
+				"background-position"
+			],
+			[
+				"pa",
+				"parseInt"
+			],
+			[
+				"margin-",
+				"margin-bottom"
+			],
+			[
+				"que",
+				"question_pointer"
+			],
+			[
+				"submi",
+				"submitAnswer"
+			],
+			[
+				"an",
+				"answer_mode"
+			],
+			[
+				"regi",
+				"registerDontTouch"
+			],
+			[
+				"loadPro",
+				"loadProperties"
+			],
+			[
+				"load",
+				"loadProperties"
+			],
+			[
+				"resi",
+				"resize_trigger"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "cdn/foundation-custom/scss/question.scss",
+			"settings":
+			{
+				"buffer_size": 1150,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "cdn/aprovapp-frontend/question/template.html",
+			"settings":
+			{
+				"buffer_size": 2755,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "cdn/foundation-custom/scss/app.scss",
+			"settings":
+			{
+				"buffer_size": 2659,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "cdn/aprovapp-frontend/off-canvas/test.html",
+			"settings":
+			{
+				"buffer_size": 4970,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"rein",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"packge ins",
+				"Package Control: Install Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"rei",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"rein	",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"reind",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"dein",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"re",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"rei	",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"idn	",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"i",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"red",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"reid",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"pa",
+				"Package Control: Install Package"
+			],
+			[
+				"pac",
+				"Package Control: Create Package File"
+			],
+			[
+				"",
+				"Preferences: Browse Packages"
+			]
+		],
+		"width": 512.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Z/projects/aprovapp/aprovapp/static/foundation-custom/sass/aprovapp.scss",
+		"/Z/projects/aprovapp/cdn/foundation-custom/scss/question.scss",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/question/template.html",
+		"/Z/projects/aprovapp/cdn/foundation-custom/scss/_settings.scss",
+		"/Z/projects/aprovapp/cdn/foundation-custom/scss/app.scss",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/off-canvas/test.html",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/modal/test.html",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/question/test.html",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/modal/test.js",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/question/directives.js",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/app.js",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/app/app.js",
+		"/Z/projects/aprovapp/cdn/aprovapp-frontend/vpscale.js",
+		"/Z/projects/aprovapp/cdn/foundation-custom/bower_components/modernizr/modernizr.js",
+		"/Z/projects/aprovapp/cdn/foundation-custom/js/app.js",
+		"/Z/projects/aprovapp/cdn/foundation-custom/stylesheets/app.css",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/template.html",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/test.html",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/style.css",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/controllers.js",
+		"/Z/projects/aprovapp/aprovapp/templates/admin_frame.html",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/style.css",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/test-layout.css",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/test-layout.html",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/test.html",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/directives.js",
+		"/Z/projects/lstool/lstool/templates/admin_frame.html",
+		"/Z/projects/lstool/lstool/crud/__init__.py",
+		"/Z/projects/lstool/lstool/crud/config.py",
+		"/Z/projects/lstool/lstool/crud/forms.py",
+		"/Z/projects/lstool/lstool/crud/views.py",
+		"/Z/projects/lstool/lstool/crud/models.py",
+		"/Z/projects/lstool/lstool/crud/decorators.py",
+		"/Z/projects/lstool/lstool/crud/constants.py",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/controllers.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/directives.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/controllers.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/services.js",
+		"//192.168.101.1/Students/TEXT NBI/iManager U2000 V100R006C00 Performance Text NBI Performance Indicator Template/indicator_OTN_Network.xml",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/directives.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/vpscale.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/angular-touch.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/hammer.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/touchy.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/test.html",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/test.html",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/data.json.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/controllers.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/exam.json.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/test.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/app.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/directives.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/module.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/exam.json.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/services.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/off-canvas/data.json",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/style.css",
+		"/Z/projects/aprovapp/aprovapp/static/almost-flat-ui/stylesheets/app.css",
+		"/Z/projects/aprovapp/aprovapp/static/foundation/css/foundation.css",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/services.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/style.css",
+		"/Z/projects/aprovapp/aprovapp/static/foundation/js/vendor/custom.modernizr.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/app/vendor/angular.min.js",
+		"/C/Users/g00740373/Downloads/modernizr.custom.31350.js",
+		"/C/Users/g00740373/Downloads/modernizr.custom.13268.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/module.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/module.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/app/vendor/angular-sanitize.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/question.json",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/exam.json",
+		"/Z/projects/aprovapp/aprovapp/static/js/exam/test.js",
+		"/Z/projects/aprovapp/aprovapp/static/css/style.css",
+		"/Z/projects/aprovapp/aprovapp/static/js/menu.js",
+		"/C/Users/g00740373/Desktop/test.html",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/utils.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/question/question.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/module.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/modal2.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/modal3.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/stateManager.js",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/modal.css",
+		"/Z/projects/aprovapp/aprovapp/static/js/modal/modal.js"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"ap-",
+			"js/",
+			"js/app/vendor",
+			"js/app/vendor/",
+			"js/app",
+			"app",
+			"static",
+			"side",
+			">\n",
+			"\">\n",
+			"aprovapp",
+			"help_text_1",
+			"pre_idle_modal",
+			"timeContro",
+			"increment_active_time",
+			"console.log",
+			"console.oo",
+			"console.log",
+			"idle_countdown",
+			"$scope.idle_timeout",
+			", ",
+			"s.",
+			"s",
+			"$scope",
+			"count_timer",
+			"modalService",
+			"		\n",
+			"scroll",
+			"alert",
+			"$scope.scroll_position",
+			"monitor_scroll",
+			"factor",
+			"threshold",
+			"$scope.scroll_position",
+			"scroll_w",
+			"$scope.scroll_position",
+			"resize",
+			"updateSizes",
+			"setActualScrollPostion",
+			"updateScreenPositions",
+			"update",
+			"appl",
+			"scroll_position",
+			"'move'",
+			"GOTO",
+			"goTo",
+			"'move'",
+			"viewportWidth",
+			"clientY",
+			"clientX",
+			"$scope.",
+			"$scope.orientation",
+			"$scope.updateSizes",
+			"updateSizes",
+			"this",
+			"width",
+			"offsetWidth",
+			"clientWidth",
+			"		    	\n",
+			"goTo",
+			"scrollTo",
+			"scroll_h",
+			"console",
+			"duration",
+			"duration_",
+			"max_duration",
+			"getSizes",
+			"update_position",
+			"get_sizes",
+			"var pos = get_scroll_position();",
+			"$scope.setScrollPosition(pos.w, pos.h)",
+			"update_position",
+			"updatePosition",
+			"$scope.scroll_w",
+			"scrollTo",
+			"delta",
+			"$scope.scroll_position",
+			"initial_position",
+			"console",
+			"conso",
+			"view_size",
+			"loadData",
+			"scroll_position",
+			"actual_scroll",
+			"data_size",
+			"position_float",
+			"floor",
+			"cut_point",
+			"in_rate",
+			"size",
+			"pointer",
+			"scroll",
+			"console.log",
+			"2",
+			"resize",
+			"cons",
+			"console.log\n                    ",
+			"\n                    ",
+			"console.log",
+			"console",
+			"start_scroll",
+			"$scope.monitor_scroll = false",
+			"$scope.monitor_scroll",
+			"disable_scroll_monitor",
+			"array_index",
+			"'positionupdate'",
+			"conso",
+			"$broadcast('xscroll'",
+			"is_resizing",
+			"clo ",
+			"animation",
+			"yscroll",
+			"();\n",
+			"};\n",
+			"mouse_control",
+			"newValue",
+			"monitor_scroll",
+			"//",
+			"ANY",
+			"broadcast",
+			"x",
+			"X",
+			"pageXOffset",
+			"entryRemoval",
+			"exam",
+			"{}",
+			"}\n  {",
+			"$element[0]"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "cdn/foundation-custom/scss/question.scss",
+					"settings":
+					{
+						"buffer_size": 1150,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1045,
+								1045
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Sass/Syntaxes/Sass.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 516.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "cdn/aprovapp-frontend/question/template.html",
+					"settings":
+					{
+						"buffer_size": 2755,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								198,
+								198
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Djaneiro-master/Syntaxes/HTML (Django).tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "cdn/foundation-custom/scss/app.scss",
+					"settings":
+					{
+						"buffer_size": 2659,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1270,
+								1270
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Sass/Syntaxes/Sass.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 675.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "cdn/aprovapp-frontend/off-canvas/test.html",
+					"settings":
+					{
+						"buffer_size": 4970,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4151,
+								4151
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Djaneiro-master/Syntaxes/HTML (Django).tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 187.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 184.0,
+	"status_bar_visible": true
+}

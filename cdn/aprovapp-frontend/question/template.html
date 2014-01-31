@@ -1,0 +1,85 @@
+<div ng-controller="QuestionCtrl">
+
+  <div class="row question-top-row eq-height-container">
+    <div class="small-2 columns question-top-column question-number">
+      <h4>Questão 1</h4>
+    </div>
+    <div class="small-4 columns left question-top-column eq-height">
+
+      <div ng-show="answering_area">
+        <p> ANSWERING </p>
+      </div>
+
+      <div ng-show="right_answer_area" >
+        <a href="#" class="large button expand success radius"><i class="general foundicon-checkmark"></i> RESPOSTA {{ showScore() }}% CERTA!</a>
+      </div>
+
+      <div ng-show="kick_answer_area">
+        <a href="#" class="large button expand primary radius"><i class="general foundicon-idea"></i> FOI POR POUCO! {{ showScore() }}%</a>     
+      </div>
+
+      <div ng-show="wrong_answer_area">
+        <a href="#" class="large button expand alert radius"><i class="general foundicon-error"></i> RESPOSTA ERRADA!</a>
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+  <div class="row eq-height-container">
+
+    <!-- Question -->
+    <div class="small-12 large-9 columns eq-height question-area">
+
+
+      <div class="row">
+        <div class="small-12 columns">
+          <h5 class="subheader question-enunciation"><span ng-bind-html="enunciation"></span></h5>  
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="small-12 columns">
+
+          <a ng-show="reference.length" ng-click="showReference()" class="button small secondary reference"> <i class="reference fi-list"></i> &nbsp;Texto associado</a>
+
+          <a href="" class="button small secondary reference" ng-click="submitAnswer()" ng-class="answer_button_disabled"> VER RESPOSTA</a>
+
+          <a href=""  class="button small secondary reference" ng-click="kickMode()" ng-class="{true:'alert', false:'alert-dark'}[kick_mode]"> CHUTAR</a>
+
+          <a href="" class="button small secondary reference" ng-click="reset()"> LIMPAR</a>
+
+          <hr/>
+
+        </div>
+      </div>
+
+
+
+      <dl question>
+        <dd ng-repeat="choice in choices" choice index="{{ $index }}" id="{{ choice.id }}"ng-click="select($index)" style="cursor:pointer"><span><b>{{ choiceLetter($index) }})</b> {{ choice.text }}</span></dd>
+      </dl>
+
+
+
+    </div>
+
+
+    <!-- Side Question Content -->
+    <div class="small-12 large-3 columns eq-height question-side-column">
+
+      <!-- Pre-answer content -->
+      <div ng-show="pre_answer_area">
+
+          <!-- Answer Mode Buttons 
+          <a href="#" class="button primary small" ng-click="changeMode(click_right)" ng-class="click_right" style="width:50%">Marcar</br>Certas</a><a href="#" class="button primary small" ng-click="changeMode(click_wrong)" ng-class="click_wrong" style="width:50%">Marcar</br>Erradas</a>-->
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
